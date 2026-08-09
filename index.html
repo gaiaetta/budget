@@ -7,705 +7,811 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --bg: #f4f6f9;
-            --card: #ffffff;
-            --text: #1e293b;
-            --primary: #2563eb;
-            --success: #10b981;
-            --danger: #ef4444;
-            --border: #e2e8f0;
+            --bg-color: #f7f5f7;
+            --card-bg: #ffffff;
+            --primary: #d8819d;
+            --primary-hover: #c46b87;
+            --primary-light: #fbebf0;
+            --text-dark: #332e34;
+            --text-muted: #7e737f;
+            --border-color: #eee6ec;
+            --accent-green: #68b087;
+            --accent-red: #e06d7d;
+            --shadow: 0 4px 15px rgba(180, 140, 160, 0.08);
+            --radius: 16px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 12px;
-            display: flex;
-            justify-content: center;
-            -webkit-user-select: none;
-        }
-
-        .container {
-            max-width: 800px;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        h1, h2, h3 { margin: 0 0 8px 0; }
-
-        .card {
-            background: var(--card);
+            background-color: var(--bg-color);
+            color: var(--text-dark);
             padding: 16px;
-            border-radius: 12px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            border: 1px solid var(--border);
+            max-width: 500px;
+            margin: 0 auto;
+            padding-bottom: 40px;
         }
 
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 10px;
-        }
-
-        .stat-box {
-            background: #f8fafc;
-            padding: 12px;
-            border-radius: 8px;
-            border-left: 4px solid var(--primary);
-        }
-
-        .stat-box.income { border-color: var(--success); }
-        .stat-box.expense { border-color: var(--danger); }
-
-        .stat-value {
-            font-size: 1.2rem;
-            font-weight: bold;
-            margin-top: 4px;
-        }
-
-        .month-selector {
+        /* Header */
+        .header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: #ffffff;
-            padding: 10px 14px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
+            margin-bottom: 18px;
+            padding: 8px 4px;
         }
 
-        .month-selector button {
-            padding: 6px 12px;
-            border-radius: 6px;
-            border: 1px solid var(--border);
-            background: #f1f5f9;
-            font-weight: bold;
-            width: auto;
-        }
-
-        .month-title {
-            font-size: 0.85rem;
-            font-weight: bold;
-            color: var(--primary);
-            text-align: center;
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        .header h1 {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
             gap: 8px;
-            align-items: end;
         }
 
-        label {
-            font-size: 0.8rem;
+        .header h1 span {
+            color: var(--primary);
+        }
+
+        /* Period Selector Card */
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        .period-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .btn-nav {
+            background: var(--primary-light);
+            color: var(--primary);
+            border: none;
+            border-radius: 12px;
+            padding: 10px 14px;
+            font-size: 14px;
             font-weight: 600;
-            color: #475569;
-            margin-bottom: 2px;
-            display: block;
+            cursor: pointer;
+            transition: all 0.2s;
         }
 
-        input, select, button {
-            padding: 10px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 0.95rem;
-            width: 100%;
-            box-sizing: border-box;
-            -webkit-appearance: none;
-        }
-
-        button.btn-primary {
+        .btn-nav:active {
+            transform: scale(0.96);
             background: var(--primary);
             color: white;
-            border: none;
-            font-weight: bold;
-            margin-top: 10px;
         }
 
-        button.btn-secondary {
-            background: #e2e8f0;
-            color: var(--text);
-            border: none;
+        .period-title {
+            text-align: center;
+            font-size: 14px;
             font-weight: 600;
+            color: var(--text-dark);
         }
 
-        ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
+        .period-subtitle {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-align: center;
+            margin-top: 2px;
         }
 
-        li {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid var(--border);
-        }
-
-        li:last-child { border-bottom: none; }
-
-        .delete-btn {
-            background: none;
-            border: none;
-            color: var(--danger);
-            font-size: 1.1rem;
-            width: auto;
-            padding: 0 6px;
-        }
-
-        .badge {
-            font-size: 0.7rem;
-            padding: 2px 6px;
-            border-radius: 10px;
-            background: #e2e8f0;
-            margin-left: 4px;
-            display: inline-block;
-        }
-
-        .badge-sub {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-
-        .filter-box {
+        /* Summary Stats */
+        .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-            gap: 8px;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 14px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card.full {
+            grid-column: span 2;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+        }
+
+        .stat-card.entrate::before { background-color: var(--accent-green); }
+        .stat-card.uscite::before { background-color: var(--accent-red); }
+        .stat-card.saldo::before { background-color: var(--primary); }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        /* Chart & Budget */
+        .chart-container {
+            position: relative;
+            height: 220px;
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .section-title {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-dark);
+        }
+
+        /* Forms & Tabs */
+        .tab-buttons {
+            display: flex;
+            background: #ede6eb;
+            padding: 4px;
+            border-radius: 12px;
+            margin-bottom: 14px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            border: none;
+            padding: 10px;
+            border-radius: 9px;
+            font-size: 13px;
+            font-weight: 600;
+            background: transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            background: var(--card-bg);
+            color: var(--primary);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .form-group {
             margin-bottom: 12px;
         }
 
-        .chart-container {
-            position: relative;
-            max-width: 260px;
-            margin: 0 auto;
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 6px;
         }
 
-        .flex-between {
+        .form-control {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 14px;
+            outline: none;
+            background: #faf7f9;
+            color: var(--text-dark);
+            transition: border 0.2s;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            background: #fff;
+        }
+
+        .btn-submit {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 14px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 6px;
+            box-shadow: 0 4px 12px rgba(216, 129, 157, 0.3);
+            transition: background 0.2s;
+        }
+
+        .btn-submit:active {
+            background: var(--primary-hover);
+            transform: scale(0.99);
+        }
+
+        /* Movement List */
+        .movement-item {
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
         }
 
-        .ios-notice {
-            background: #eff6ff;
-            border: 1px solid #bfdbfe;
-            color: #1e40af;
-            padding: 10px;
+        .movement-item:last-child {
+            border-bottom: none;
+        }
+
+        .movement-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .movement-cat {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .movement-sub {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .movement-amount {
+            font-size: 15px;
+            font-weight: 700;
+            text-align: right;
+        }
+
+        .amount-entrata { color: var(--accent-green); }
+        .amount-uscita { color: var(--accent-red); }
+
+        .btn-delete {
+            background: none;
+            border: none;
+            color: #ccc;
+            font-size: 16px;
+            margin-left: 10px;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .btn-delete:hover {
+            color: var(--accent-red);
+        }
+
+        /* Category Manager List */
+        .category-list-box {
+            margin-top: 14px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 12px;
+        }
+
+        .category-item {
+            background: #faf7f9;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text-dark);
+        }
+
+        .subcat-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 6px;
+        }
+
+        .subcat-tag {
+            background: #ede6eb;
+            color: var(--text-dark);
+            font-size: 11px;
+            font-weight: 500;
+            padding: 3px 8px;
             border-radius: 8px;
-            font-size: 0.8rem;
-            margin-bottom: 5px;
+        }
+
+        .empty-msg {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 13px;
+            padding: 20px 0;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>📊 Gestione Stipendio</h1>
-
-    <div class="ios-notice">
-        📱 <strong>Per non perdere i dati su iPhone:</strong> Apri questo file direttamente su <strong>Safari</strong> oppure scarica il backup con il tasto in fondo.
+    <!-- Header -->
+    <div class="header">
+        <h1>🌸 Gestione <span>Stipendio</span></h1>
     </div>
 
-    <!-- SELETTORE MESE -->
-    <div class="month-selector">
-        <button type="button" onclick="changeMonth(-1)">❮ Prec</button>
-        <div class="month-title" id="current-period-label">Caricamento...</div>
-        <button type="button" onclick="changeMonth(1)">Succ ❯</button>
-    </div>
-
-    <!-- DASHBOARD -->
-    <div class="grid">
-        <div class="stat-box income">
-            <div>Entrate</div>
-            <div class="stat-value" id="total-income">€ 0.00</div>
-        </div>
-        <div class="stat-box expense">
-            <div>Uscite</div>
-            <div class="stat-value" id="total-expense">€ 0.00</div>
-        </div>
-        <div class="stat-box">
-            <div>Saldo</div>
-            <div class="stat-value" id="balance">€ 0.00</div>
-        </div>
-    </div>
-
-    <!-- GRAFICO -->
+    <!-- Period Card -->
     <div class="card">
-        <h3>📈 Uscite per Categoria</h3>
+        <div class="period-nav">
+            <button class="btn-nav" onclick="changePeriod(-1)">❮ Prec</button>
+            <div>
+                <div class="period-title" id="periodDisplay">--</div>
+                <div class="period-subtitle" id="periodSubDisplay">Mese Corrente</div>
+            </div>
+            <button class="btn-nav" onclick="changePeriod(1)">Succ ❯</button>
+        </div>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+        <div class="stat-card entrate">
+            <div class="stat-label">Entrate</div>
+            <div class="stat-value" id="totalEntrate">€ 0.00</div>
+        </div>
+        <div class="stat-card uscite">
+            <div class="stat-label">Uscite</div>
+            <div class="stat-value" id="totalUscite">€ 0.00</div>
+        </div>
+        <div class="stat-card saldo full">
+            <div class="stat-label">Saldo Mese</div>
+            <div class="stat-value" id="totalSaldo">€ 0.00</div>
+        </div>
+    </div>
+
+    <!-- Chart -->
+    <div class="card">
+        <div class="section-title">📈 Uscite per Categoria</div>
         <div class="chart-container">
-            <canvas id="expenseChart"></canvas>
-        </div>
-        <div id="no-chart-data" style="text-align: center; color: #94a3b8; font-size: 0.85rem; margin-top: 10px; display: none;">
-            Nessuna uscita registrata.
+            <canvas id="categoryChart"></canvas>
         </div>
     </div>
 
-    <!-- REGOLA 50/30/20 -->
+    <!-- Add Movement Form -->
     <div class="card">
-        <h3>💡 Budget (50/30/20)</h3>
-        <div class="grid">
-            <div><strong>50% Necessità:</strong> <br><span id="budget-50">€ 0.00</span></div>
-            <div><strong>30% Svago:</strong> <br><span id="budget-30">€ 0.00</span></div>
-            <div><strong>20% Risparmi:</strong> <br><span id="budget-20">€ 0.00</span></div>
+        <div class="section-title">➕ Nuova Operazione</div>
+        
+        <div class="tab-buttons">
+            <button class="tab-btn active" id="tabUscita" onclick="setType('uscita')">Uscita</button>
+            <button class="tab-btn" id="tabEntrata" onclick="setType('entrata')">Entrata</button>
         </div>
-    </div>
 
-    <!-- AGGIUNGI OPERAZIONE -->
-    <div class="card">
-        <h3>➕ Nuova Operazione</h3>
-        <div class="form-grid">
-            <div>
-                <label>Data</label>
-                <input type="date" id="date">
-            </div>
-            <div>
-                <label>Descrizione</label>
-                <input type="text" id="desc" placeholder="es. Spesa">
-            </div>
-            <div>
+        <form onsubmit="addMovement(event)">
+            <div class="form-group">
                 <label>Importo (€)</label>
-                <input type="number" id="amount" step="0.01" placeholder="0.00">
+                <input type="number" step="0.01" class="form-control" id="movAmount" placeholder="0.00" required>
             </div>
-            <div>
-                <label>Tipo</label>
-                <select id="type" onchange="handleTypeChange()">
-                    <option value="expense">Uscita (-)</option>
-                    <option value="income">Entrata (+)</option>
-                </select>
-            </div>
-        </div>
 
-        <div class="form-grid" style="margin-top: 8px;" id="category-fields">
-            <div>
+            <div class="form-group">
                 <label>Categoria</label>
-                <select id="category" onchange="updateSubcategoryDropdown()"></select>
-            </div>
-            <div>
-                <label>Sottocategoria</label>
-                <select id="subcategory">
-                    <option value="">-- Nessuna --</option>
+                <select class="form-control" id="movCategory" onchange="updateSubcategories()" required>
                 </select>
             </div>
-        </div>
 
-        <button type="button" class="btn-primary" onclick="addNewTransaction()">Aggiungi Operazione</button>
+            <div class="form-group">
+                <label>Sottocategoria</label>
+                <select class="form-control" id="movSubcategory">
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Note / Descrizione (opzionale)</label>
+                <input type="text" class="form-control" id="movNote" placeholder="Es. Spesa conad, Benzina...">
+            </div>
+
+            <button type="submit" class="btn-submit">Salva Operazione</button>
+        </form>
     </div>
 
-    <!-- GESTIONE CATEGORIE -->
+    <!-- Movement List -->
     <div class="card">
-        <div class="flex-between" style="cursor: pointer;" onclick="toggleCatManager()">
-            <h3>⚙️ Gestisci Categorie</h3>
-            <span id="cat-toggle-icon">▼</span>
-        </div>
-        <div id="cat-manager-body" style="display: none; margin-top: 12px;">
-            <div style="margin-bottom: 10px;">
-                <label>Nuova Categoria Uscita</label>
-                <div style="display: flex; gap: 6px;">
-                    <input type="text" id="new-cat-input" placeholder="es. Auto">
-                    <button type="button" class="btn-secondary" style="width: auto;" onclick="addNewCategory()">+ Add</button>
-                </div>
-            </div>
+        <div class="section-title">📋 Movimenti del Mese</div>
+        <div id="movementList"></div>
+    </div>
 
-            <div style="background: #f8fafc; padding: 10px; border-radius: 8px;">
-                <label>Aggiungi Sottocategoria</label>
-                <div style="display: flex; flex-direction: column; gap: 6px;">
-                    <select id="add-sub-cat-select"></select>
-                    <div style="display: flex; gap: 6px;">
-                        <input type="text" id="new-sub-input" placeholder="es. Benzina">
-                        <button type="button" class="btn-secondary" style="width: auto;" onclick="addNewSubcategory()">+ Add</button>
+    <!-- Category & Subcategory Management -->
+    <div class="card">
+        <div class="section-title">🏷️ Categorie & Sottocategorie</div>
+        
+        <form onsubmit="addNewCategory(event)" style="margin-bottom: 12px;">
+            <div class="form-group">
+                <label>Aggiungi Nuova Categoria (con Emoji)</label>
+                <input type="text" class="form-control" id="newCatName" placeholder="Es. 🐶 Lulù oppure 🚗 Auto" required>
+            </div>
+            <button type="submit" class="btn-submit" style="background: #9a809e; padding: 10px;">+ Categoria</button>
+        </form>
+
+        <form onsubmit="addNewSubcategory(event)">
+            <div class="form-group">
+                <label>Aggiungi Sottocategoria a Categoria Esistente</label>
+                <select class="form-control" id="parentCategorySelect" style="margin-bottom: 6px;"></select>
+                <input type="text" class="form-control" id="newSubCatName" placeholder="Es. Veterinario, Cibo, Palestra..." required>
+            </div>
+            <button type="submit" class="btn-submit" style="background: #8b718f; padding: 10px;">+ Sottocategoria</button>
+        </form>
+
+        <!-- Existing Categories List -->
+        <div class="category-list-box">
+            <div class="section-title" style="font-size: 13px; margin-top: 4px;">📂 Categorie Presenti</div>
+            <div id="existingCategoriesContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        // Categorie predefinite aggiornate
+        const defaultCategories = {
+            "Lulù🐾": ["Toelettatura", "Cibo e snack", "Accessori"],
+            "Salute💊": ["Medicine", "Psicologa", "Visite"],
+            "Spesa🛒": [],
+            "Cibo🍕": ["Pranzo lavoro"],
+            "Trasporti🚗": ["Bus", "Benzina", "Assicurazione"],
+            "Bellezza💆🏻‍♀️": ["Unghie", "Prodotti"],
+            "Shopping🛍️": [],
+            "Regali🎁": []
+        };
+
+        let currentPeriodOffset = 0;
+        let currentType = 'uscita';
+        let categories = {};
+        let movements = [];
+        let chartInstance = null;
+
+        // Load data on start
+        window.onload = function() {
+            loadCategories();
+            loadMovements();
+            renderAll();
+        };
+
+        function loadCategories() {
+            const saved = localStorage.getItem('gestione_stipendio_cats');
+            if (saved) {
+                categories = JSON.parse(saved);
+            } else {
+                categories = defaultCategories;
+                saveCategories();
+            }
+        }
+
+        function saveCategories() {
+            localStorage.setItem('gestione_stipendio_cats', JSON.stringify(categories));
+        }
+
+        function loadMovements() {
+            const saved = localStorage.getItem('gestione_stipendio_movs');
+            if (saved) {
+                movements = JSON.parse(saved);
+            } else {
+                movements = [];
+            }
+        }
+
+        function saveMovements() {
+            localStorage.setItem('gestione_stipendio_movs', JSON.stringify(movements));
+        }
+
+        function setType(type) {
+            currentType = type;
+            document.getElementById('tabUscita').classList.toggle('active', type === 'uscita');
+            document.getElementById('tabEntrata').classList.toggle('active', type === 'entrata');
+            updateCategoryDropdowns();
+        }
+
+        function getPeriodDates(offset) {
+            const now = new Date();
+            let year = now.getFullYear();
+            let month = now.getMonth() + offset;
+
+            let startDate = new Date(year, month, 10);
+            let endDate = new Date(year, month + 1, 9, 23, 59, 59);
+
+            return { startDate, endDate };
+        }
+
+        function formatPeriodTitle(offset) {
+            const { startDate, endDate } = getPeriodDates(offset);
+            const options = { day: 'numeric', month: 'short' };
+            const startStr = startDate.toLocaleDateString('it-IT', options);
+            const endStr = endDate.toLocaleDateString('it-IT', options);
+            
+            const monthName = endDate.toLocaleDateString('it-IT', { month: 'long', year: 'numeric' });
+            return {
+                title: `${startStr} - ${endStr}`,
+                subtitle: monthName.charAt(0).toUpperCase() + monthName.slice(1)
+            };
+        }
+
+        function changePeriod(delta) {
+            currentPeriodOffset += delta;
+            renderAll();
+        }
+
+        function updateCategoryDropdowns() {
+            const catSelect = document.getElementById('movCategory');
+            const parentCatSelect = document.getElementById('parentCategorySelect');
+            
+            catSelect.innerHTML = '';
+            parentCatSelect.innerHTML = '';
+
+            Object.keys(categories).forEach(cat => {
+                let opt = document.createElement('option');
+                opt.value = cat;
+                opt.textContent = cat;
+                catSelect.appendChild(opt);
+
+                let optParent = document.createElement('option');
+                optParent.value = cat;
+                optParent.textContent = cat;
+                parentCatSelect.appendChild(optParent);
+            });
+
+            updateSubcategories();
+            renderExistingCategoriesList();
+        }
+
+        function updateSubcategories() {
+            const selectedCat = document.getElementById('movCategory').value;
+            const subSelect = document.getElementById('movSubcategory');
+            subSelect.innerHTML = '';
+
+            if (selectedCat && categories[selectedCat]) {
+                categories[selectedCat].forEach(sub => {
+                    let opt = document.createElement('option');
+                    opt.value = sub;
+                    opt.textContent = sub;
+                    subSelect.appendChild(opt);
+                });
+            }
+        }
+
+        function renderExistingCategoriesList() {
+            const container = document.getElementById('existingCategoriesContainer');
+            container.innerHTML = '';
+
+            Object.keys(categories).forEach(cat => {
+                const catItem = document.createElement('div');
+                catItem.className = 'category-item';
+
+                let subTags = categories[cat].map(sub => `<span class="subcat-tag">${sub}</span>`).join('');
+
+                catItem.innerHTML = `
+                    <div class="category-header">
+                        <span>${cat}</span>
+                        <button class="btn-delete" title="Elimina Categoria" onclick="deleteCategory('${cat.replace(/'/g, "\\'")}')">🗑️</button>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- MOVIMENTI -->
-    <div class="card">
-        <h3>🔍 Movimenti Periodo</h3>
-        <div class="filter-box">
-            <div>
-                <label>Categoria</label>
-                <select id="filter-category" onchange="applyFilters()">
-                    <option value="ALL">Tutte</option>
-                </select>
-            </div>
-            <div>
-                <label>Sottocategoria</label>
-                <select id="filter-subcategory" onchange="applyFilters()">
-                    <option value="ALL">Tutte</option>
-                </select>
-            </div>
-        </div>
-        <ul id="transaction-list"></ul>
-    </div>
-
-    <!-- BACKUP FILE PER IPHONE -->
-    <div class="card" style="background: #f1f5f9;">
-        <h3>💾 Backup Dati iPhone</h3>
-        <div style="display: flex; gap: 8px; margin-top: 6px;">
-            <button type="button" class="btn-secondary" onclick="exportData()">📥 Salva Backup</button>
-            <button type="button" class="btn-secondary" onclick="document.getElementById('import-file').click()">📤 Carica Backup</button>
-            <input type="file" id="import-file" style="display: none;" onchange="importData(event)" accept=".json">
-        </div>
-    </div>
-</div>
-
-<script>
-    const STORAGE_KEY_CATEGORIES = 'app_stipendio_cats_v2';
-    const STORAGE_KEY_TRANSACTIONS = 'app_stipendio_trans_v2';
-
-    const defaultCategories = {
-        "Lulù": ["Veterinario", "Cibo", "Accessori", "Toelettatura"],
-        "Shopping": ["Abbigliamento", "Elettronica", "Casa"],
-        "Salute": ["Farmacia", "Visite", "Analisi"],
-        "Spesa": ["Supermercato", "Alimentari"],
-        "Trasporti": ["Carburante", "Mezzi Pubblici", "Manutenzione"],
-        "Bellezza": ["Parrucchiere", "Estetica", "Prodotti"],
-        "Regali": ["Compleanni", "Feste"],
-        "Mangiare e bere": ["Ristoranti", "Bar/Caffè", "Asporto"]
-    };
-
-    let categories = defaultCategories;
-    let transactions = [];
-
-    function loadSavedData() {
-        try {
-            const savedCat = localStorage.getItem(STORAGE_KEY_CATEGORIES);
-            if (savedCat) categories = JSON.parse(savedCat);
-
-            const savedTrans = localStorage.getItem(STORAGE_KEY_TRANSACTIONS);
-            if (savedTrans) transactions = JSON.parse(savedTrans);
-        } catch (e) {
-            console.warn("Storage non disponibile in questo contesto iOS:", e);
-        }
-    }
-
-    function saveState() {
-        try {
-            localStorage.setItem(STORAGE_KEY_CATEGORIES, JSON.stringify(categories));
-            localStorage.setItem(STORAGE_KEY_TRANSACTIONS, JSON.stringify(transactions));
-        } catch (e) {
-            console.error("Errore salvataggio:", e);
-        }
-    }
-
-    let currentMonthOffset = 0;
-    let expenseChartInstance = null;
-
-    function formatDateToString(d) {
-        const year = d.getFullYear();
-        const month = String(d.getMonth() + 1).padStart(2, '0');
-        const day = String(d.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
-    }
-
-    document.getElementById('date').value = formatDateToString(new Date());
-
-    function getPeriodRange(offset) {
-        const now = new Date();
-        let year = now.getFullYear();
-        let month = now.getMonth();
-        
-        if (now.getDate() < 10) month -= 1;
-        month += offset;
-
-        const startDate = new Date(year, month, 10);
-        const endDate = new Date(year, month + 1, 9);
-
-        return {
-            startDate,
-            endDate,
-            startStr: formatDateToString(startDate),
-            endStr: formatDateToString(endDate)
-        };
-    }
-
-    function formatPeriodLabel(startDate, endDate) {
-        const monthsNames = ["Gen", "Feb", "Mar", "Apr", "Mag", "Giu", "Lug", "Ago", "Set", "Ott", "Nov", "Dic"];
-        const fullMonthsNames = ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"];
-
-        return `${startDate.getDate()} ${monthsNames[startDate.getMonth()]} - ${endDate.getDate()} ${monthsNames[endDate.getMonth()]} (${fullMonthsNames[endDate.getMonth()]} ${endDate.getFullYear()})`;
-    }
-
-    function changeMonth(delta) {
-        currentMonthOffset += delta;
-        updateUI();
-    }
-
-    function populateCategoryDropdowns() {
-        const catSelect = document.getElementById('category');
-        const filterCatSelect = document.getElementById('filter-category');
-        const addSubCatSelect = document.getElementById('add-sub-cat-select');
-
-        catSelect.innerHTML = '';
-        filterCatSelect.innerHTML = '<option value="ALL">Tutte</option>';
-        addSubCatSelect.innerHTML = '';
-
-        Object.keys(categories).forEach(cat => {
-            catSelect.innerHTML += `<option value="${cat}">${cat}</option>`;
-            filterCatSelect.innerHTML += `<option value="${cat}">${cat}</option>`;
-            addSubCatSelect.innerHTML += `<option value="${cat}">${cat}</option>`;
-        });
-
-        updateSubcategoryDropdown();
-        updateFilterSubcategoryDropdown();
-    }
-
-    function updateSubcategoryDropdown() {
-        const cat = document.getElementById('category').value;
-        const subSelect = document.getElementById('subcategory');
-        subSelect.innerHTML = '<option value="">-- Nessuna --</option>';
-
-        if (cat && categories[cat]) {
-            categories[cat].forEach(sub => {
-                subSelect.innerHTML += `<option value="${sub}">${sub}</option>`;
+                    <div class="subcat-tags">
+                        ${subTags.length > 0 ? subTags : '<span class="subcat-tag" style="background:#eee;">Nessuna sottocategoria</span>'}
+                    </div>
+                `;
+                container.appendChild(catItem);
             });
         }
-    }
 
-    function updateFilterSubcategoryDropdown() {
-        const selectedCat = document.getElementById('filter-category').value;
-        const filterSubSelect = document.getElementById('filter-subcategory');
-        filterSubSelect.innerHTML = '<option value="ALL">Tutte</option>';
-
-        if (selectedCat !== 'ALL' && categories[selectedCat]) {
-            categories[selectedCat].forEach(sub => {
-                filterSubSelect.innerHTML += `<option value="${sub}">${sub}</option>`;
-            });
-        }
-    }
-
-    function handleTypeChange() {
-        const type = document.getElementById('type').value;
-        document.getElementById('category-fields').style.display = (type === 'income') ? 'none' : 'grid';
-    }
-
-    function toggleCatManager() {
-        const body = document.getElementById('cat-manager-body');
-        const icon = document.getElementById('cat-toggle-icon');
-        const isHidden = body.style.display === 'none';
-        body.style.display = isHidden ? 'block' : 'none';
-        icon.textContent = isHidden ? '▲' : '▼';
-    }
-
-    function addNewCategory() {
-        const input = document.getElementById('new-cat-input');
-        const catName = input.value.trim();
-        if (catName && !categories[catName]) {
-            categories[catName] = [];
-            saveState();
-            populateCategoryDropdowns();
-            input.value = '';
-        }
-    }
-
-    function addNewSubcategory() {
-        const cat = document.getElementById('add-sub-cat-select').value;
-        const input = document.getElementById('new-sub-input');
-        const subName = input.value.trim();
-        if (cat && subName && !categories[cat].includes(subName)) {
-            categories[cat].push(subName);
-            saveState();
-            populateCategoryDropdowns();
-            input.value = '';
-        }
-    }
-
-    function applyFilters() {
-        updateUI(false);
-    }
-
-    function updateUI(resetFilters = true) {
-        const { startDate, endDate, startStr, endStr } = getPeriodRange(currentMonthOffset);
-        document.getElementById('current-period-label').textContent = formatPeriodLabel(startDate, endDate);
-
-        if (resetFilters) populateCategoryDropdowns();
-        else updateFilterSubcategoryDropdown();
-
-        const filterCat = document.getElementById('filter-category').value;
-        const filterSub = document.getElementById('filter-subcategory').value;
-        const list = document.getElementById('transaction-list');
-        list.innerHTML = '';
-
-        let totalIncome = 0;
-        let totalExpense = 0;
-        let categoryTotals = {};
-
-        const periodTransactions = transactions.filter(t => t.date >= startStr && t.date <= endStr);
-
-        periodTransactions.forEach(item => {
-            if (item.type === 'income') {
-                totalIncome += item.amount;
-            } else {
-                totalExpense += item.amount;
-                const cat = item.category || 'Altro';
-                categoryTotals[cat] = (categoryTotals[cat] || 0) + item.amount;
+        function addNewCategory(e) {
+            e.preventDefault();
+            const input = document.getElementById('newCatName');
+            const name = input.value.trim();
+            if (name && !categories[name]) {
+                categories[name] = [];
+                saveCategories();
+                input.value = '';
+                updateCategoryDropdowns();
             }
-        });
-
-        const filteredTransactions = periodTransactions.filter(item => {
-            if (filterCat !== 'ALL' && item.category !== filterCat) return false;
-            if (filterSub !== 'ALL' && item.subcategory !== filterSub) return false;
-            return true;
-        });
-
-        filteredTransactions.forEach(item => {
-            const index = transactions.indexOf(item);
-            const li = document.createElement('li');
-            const isIncome = item.type === 'income';
-
-            let badgesHTML = '';
-            if (!isIncome) {
-                badgesHTML += `<span class="badge">${item.category}</span>`;
-                if (item.subcategory) badgesHTML += `<span class="badge badge-sub">${item.subcategory}</span>`;
-            } else {
-                badgesHTML += `<span class="badge" style="background:#d1fae5;color:#065f46">Entrata</span>`;
-            }
-
-            const parts = item.date.split('-');
-            const formattedDate = `${parts[2]}/${parts[1]}`;
-
-            li.innerHTML = `
-                <div>
-                    <span style="font-size:0.75rem; color:#64748b; margin-right:4px;">${formattedDate}</span>
-                    <strong>${item.desc}</strong><br>${badgesHTML}
-                </div>
-                <div>
-                    <span style="color: ${isIncome ? 'var(--success)' : 'var(--danger)'}; font-weight: bold;">
-                        ${isIncome ? '+' : '-'} €${item.amount.toFixed(2)}
-                    </span>
-                    <button class="delete-btn" onclick="removeTransaction(${index})">✕</button>
-                </div>
-            `;
-            list.appendChild(li);
-        });
-
-        if (filteredTransactions.length === 0) {
-            list.innerHTML = '<li style="color:#94a3b8; justify-content:center;">Nessun movimento trovato.</li>';
         }
 
-        const balance = totalIncome - totalExpense;
-        document.getElementById('total-income').textContent = `€ ${totalIncome.toFixed(2)}`;
-        document.getElementById('total-expense').textContent = `€ ${totalExpense.toFixed(2)}`;
-        document.getElementById('balance').textContent = `€ ${balance.toFixed(2)}`;
+        function addNewSubcategory(e) {
+            e.preventDefault();
+            const parent = document.getElementById('parentCategorySelect').value;
+            const input = document.getElementById('newSubCatName');
+            const subName = input.value.trim();
 
-        document.getElementById('budget-50').textContent = `€ ${(totalIncome * 0.5).toFixed(2)}`;
-        document.getElementById('budget-30').textContent = `€ ${(totalIncome * 0.3).toFixed(2)}`;
-        document.getElementById('budget-20').textContent = `€ ${(totalIncome * 0.2).toFixed(2)}`;
-
-        renderChart(categoryTotals);
-    }
-
-    function renderChart(categoryTotals) {
-        const ctx = document.getElementById('expenseChart').getContext('2d');
-        const labels = Object.keys(categoryTotals);
-        const data = Object.values(categoryTotals);
-
-        if (expenseChartInstance) expenseChartInstance.destroy();
-
-        if (labels.length === 0) {
-            document.getElementById('no-chart-data').style.display = 'block';
-            document.getElementById('expenseChart').style.display = 'none';
-            return;
-        }
-
-        document.getElementById('no-chart-data').style.display = 'none';
-        document.getElementById('expenseChart').style.display = 'block';
-
-        const colors = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'];
-
-        expenseChartInstance = new Chart(ctx, {
-            type: 'pie',
-            data: {
-                labels: labels,
-                datasets: [{ data: data, backgroundColor: colors.slice(0, labels.length) }]
-            },
-            options: {
-                responsive: true,
-                plugins: { legend: { position: 'bottom' } }
-            }
-        });
-    }
-
-    function addNewTransaction() {
-        const dateInput = document.getElementById('date').value;
-        let descInput = document.getElementById('desc').value.trim();
-        const amountInput = document.getElementById('amount').value;
-        const amount = parseFloat(amountInput);
-        const type = document.getElementById('type').value;
-
-        if (!dateInput || isNaN(amount) || amount <= 0) {
-            alert("Inserisci Data e Importo validi.");
-            return;
-        }
-
-        const category = type === 'expense' ? document.getElementById('category').value : 'Stipendio';
-        const subcategory = type === 'expense' ? document.getElementById('subcategory').value : '';
-
-        if (!descInput) {
-            if (type === 'income') descInput = 'Entrata';
-            else if (subcategory) descInput = subcategory;
-            else if (category) descInput = category;
-            else descInput = 'Uscita';
-        }
-
-        transactions.push({ date: dateInput, desc: descInput, amount, type, category, subcategory });
-        saveState();
-        
-        document.getElementById('desc').value = '';
-        document.getElementById('amount').value = '';
-
-        updateUI(false);
-    }
-
-    function removeTransaction(index) {
-        transactions.splice(index, 1);
-        saveState();
-        updateUI(false);
-    }
-
-    function exportData() {
-        const data = { categories, transactions };
-        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `backup_stipendio.json`;
-        a.click();
-    }
-
-    function importData(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                const data = JSON.parse(e.target.result);
-                if (data.categories && data.transactions) {
-                    categories = data.categories;
-                    transactions = data.transactions;
-                    saveState();
-                    populateCategoryDropdowns();
-                    updateUI();
-                    alert("Dati ripristinati!");
+            if (parent && subName && categories[parent]) {
+                if (!categories[parent].includes(subName)) {
+                    categories[parent].push(subName);
+                    saveCategories();
+                    input.value = '';
+                    updateCategoryDropdowns();
                 }
-            } catch (err) {
-                alert("File non valido.");
             }
-        };
-        reader.readAsText(file);
-    }
+        }
 
-    // Inizializzazione
-    loadSavedData();
-    populateCategoryDropdowns();
-    updateUI();
-</script>
+        function deleteCategory(catName) {
+            if (confirm(`Vuoi davvero eliminare la categoria "${catName}"?`)) {
+                delete categories[catName];
+                saveCategories();
+                updateCategoryDropdowns();
+            }
+        }
 
+        function addMovement(e) {
+            e.preventDefault();
+            const amount = parseFloat(document.getElementById('movAmount').value);
+            const category = document.getElementById('movCategory').value;
+            const subcategory = document.getElementById('movSubcategory').value || '';
+            const note = document.getElementById('movNote').value.trim();
+
+            if (!amount || amount <= 0) return;
+
+            const movement = {
+                id: Date.now(),
+                type: currentType,
+                amount: amount,
+                category: category,
+                subcategory: subcategory,
+                note: note,
+                date: new Date().toISOString()
+            };
+
+            movements.push(movement);
+            saveMovements();
+
+            // Reset form
+            document.getElementById('movAmount').value = '';
+            document.getElementById('movNote').value = '';
+
+            renderAll();
+        }
+
+        function deleteMovement(id) {
+            movements = movements.filter(m => m.id !== id);
+            saveMovements();
+            renderAll();
+        }
+
+        function renderAll() {
+            const periodInfo = formatPeriodTitle(currentPeriodOffset);
+            document.getElementById('periodDisplay').textContent = periodInfo.title;
+            document.getElementById('periodSubDisplay').textContent = periodInfo.subtitle;
+
+            const { startDate, endDate } = getPeriodDates(currentPeriodOffset);
+
+            // Filter movements for current period
+            const periodMovements = movements.filter(m => {
+                const mDate = new Date(m.date);
+                return mDate >= startDate && mDate <= endDate;
+            });
+
+            // Calculate totals
+            let totEntrate = 0;
+            let totUscite = 0;
+            let catTotals = {};
+
+            periodMovements.forEach(m => {
+                if (m.type === 'entrata') {
+                    totEntrate += m.amount;
+                } else {
+                    totUscite += m.amount;
+                    catTotals[m.category] = (catTotals[m.category] || 0) + m.amount;
+                }
+            });
+
+            const saldo = totEntrate - totUscite;
+
+            document.getElementById('totalEntrate').textContent = `€ ${totEntrate.toFixed(2)}`;
+            document.getElementById('totalUscite').textContent = `€ ${totUscite.toFixed(2)}`;
+            document.getElementById('totalSaldo').textContent = `€ ${saldo.toFixed(2)}`;
+
+            renderMovementsList(periodMovements);
+            renderChart(catTotals);
+            updateCategoryDropdowns();
+        }
+
+        function renderMovementsList(list) {
+            const container = document.getElementById('movementList');
+            container.innerHTML = '';
+
+            if (list.length === 0) {
+                container.innerHTML = '<div class="empty-msg">Nessun movimento in questo periodo.</div>';
+                return;
+            }
+
+            // Sort newest first
+            const sorted = [...list].sort((a,b) => new Date(b.date) - new Date(a.date));
+
+            sorted.forEach(m => {
+                const item = document.createElement('div');
+                item.className = 'movement-item';
+
+                const isEntrata = m.type === 'entrata';
+                const sign = isEntrata ? '+' : '-';
+                const amountClass = isEntrata ? 'amount-entrata' : 'amount-uscita';
+
+                let subText = m.subcategory;
+                if (m.note) {
+                    subText += (subText ? ' • ' : '') + m.note;
+                }
+
+                item.innerHTML = `
+                    <div class="movement-info">
+                        <div class="movement-cat">${m.category}</div>
+                        <div class="movement-sub">${subText || 'Generale'}</div>
+                    </div>
+                    <div style="display:flex; align-items:center;">
+                        <div class="movement-amount ${amountClass}">${sign} € ${m.amount.toFixed(2)}</div>
+                        <button class="btn-delete" onclick="deleteMovement(${m.id})">✕</button>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function renderChart(catTotals) {
+            const ctx = document.getElementById('categoryChart').getContext('2d');
+
+            const labels = Object.keys(catTotals);
+            const data = Object.values(catTotals);
+
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+
+            if (data.length === 0) {
+                ctx.clearRect(0, 0, 300, 300);
+                return;
+            }
+
+            const pinkGreyPalette = [
+                '#d8819d', '#b08ebb', '#9381a4', '#d09bb0', 
+                '#e0a7b8', '#88748a', '#ba899b', '#aaa0ac'
+            ];
+
+            chartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: pinkGreyPalette.slice(0, labels.length),
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                font: { size: 11 },
+                                boxWidth: 12,
+                                padding: 12
+                            }
+                        }
+                    },
+                    cutout: '65%'
+                }
+            });
+        }
+    </script>
 </body>
 </html>
