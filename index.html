@@ -38,7 +38,6 @@
             padding-bottom: 40px;
         }
 
-        /* Header */
         .header {
             display: flex;
             align-items: center;
@@ -51,16 +50,12 @@
             font-size: 22px;
             font-weight: 700;
             color: var(--text-dark);
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
 
         .header h1 span {
             color: var(--primary);
         }
 
-        /* Period Selector Card */
         .card {
             background: var(--card-bg);
             border-radius: var(--radius);
@@ -86,13 +81,6 @@
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .btn-nav:active {
-            transform: scale(0.96);
-            background: var(--primary);
-            color: white;
         }
 
         .period-title {
@@ -109,7 +97,6 @@
             margin-top: 2px;
         }
 
-        /* Summary Stats */
         .stats-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -127,37 +114,20 @@
             overflow: hidden;
         }
 
-        .stat-card.full {
-            grid-column: span 2;
-        }
-
+        .stat-card.full { grid-column: span 2; }
         .stat-card::before {
             content: '';
             position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
+            left: 0; top: 0; bottom: 0;
             width: 4px;
         }
-
         .stat-card.entrate::before { background-color: var(--accent-green); }
         .stat-card.uscite::before { background-color: var(--accent-red); }
         .stat-card.saldo::before { background-color: var(--primary); }
 
-        .stat-label {
-            font-size: 12px;
-            color: var(--text-muted);
-            font-weight: 500;
-            margin-bottom: 4px;
-        }
+        .stat-label { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-bottom: 4px; }
+        .stat-value { font-size: 20px; font-weight: 700; color: var(--text-dark); }
 
-        .stat-value {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--text-dark);
-        }
-
-        /* Chart & Budget */
         .chart-container {
             position: relative;
             height: 220px;
@@ -175,7 +145,6 @@
             color: var(--text-dark);
         }
 
-        /* Forms & Tabs */
         .tab-buttons {
             display: flex;
             background: #ede6eb;
@@ -194,7 +163,6 @@
             background: transparent;
             color: var(--text-muted);
             cursor: pointer;
-            transition: all 0.2s;
         }
 
         .tab-btn.active {
@@ -203,10 +171,7 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.06);
         }
 
-        .form-group {
-            margin-bottom: 12px;
-        }
-
+        .form-group { margin-bottom: 12px; }
         .form-group label {
             display: block;
             font-size: 12px;
@@ -224,12 +189,6 @@
             outline: none;
             background: #faf7f9;
             color: var(--text-dark);
-            transition: border 0.2s;
-        }
-
-        .form-control:focus {
-            border-color: var(--primary);
-            background: #fff;
         }
 
         .btn-submit {
@@ -243,16 +202,8 @@
             font-weight: 700;
             cursor: pointer;
             margin-top: 6px;
-            box-shadow: 0 4px 12px rgba(216, 129, 157, 0.3);
-            transition: background 0.2s;
         }
 
-        .btn-submit:active {
-            background: var(--primary-hover);
-            transform: scale(0.99);
-        }
-
-        /* Movement List */
         .movement-item {
             display: flex;
             align-items: center;
@@ -261,33 +212,11 @@
             border-bottom: 1px solid var(--border-color);
         }
 
-        .movement-item:last-child {
-            border-bottom: none;
-        }
-
-        .movement-info {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-
-        .movement-cat {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-dark);
-        }
-
-        .movement-sub {
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-
-        .movement-amount {
-            font-size: 15px;
-            font-weight: 700;
-            text-align: right;
-        }
-
+        .movement-item:last-child { border-bottom: none; }
+        .movement-info { display: flex; flex-direction: column; gap: 2px; }
+        .movement-cat { font-size: 14px; font-weight: 600; color: var(--text-dark); }
+        .movement-sub { font-size: 12px; color: var(--text-muted); }
+        .movement-amount { font-size: 15px; font-weight: 700; }
         .amount-entrata { color: var(--accent-green); }
         .amount-uscita { color: var(--accent-red); }
 
@@ -298,18 +227,6 @@
             font-size: 16px;
             margin-left: 10px;
             cursor: pointer;
-            padding: 4px;
-        }
-
-        .btn-delete:hover {
-            color: var(--accent-red);
-        }
-
-        /* Category Manager List */
-        .category-list-box {
-            margin-top: 14px;
-            border-top: 1px solid var(--border-color);
-            padding-top: 12px;
         }
 
         .category-item {
@@ -326,7 +243,6 @@
             justify-content: space-between;
             font-weight: 600;
             font-size: 14px;
-            color: var(--text-dark);
         }
 
         .subcat-tags {
@@ -340,7 +256,6 @@
             background: #ede6eb;
             color: var(--text-dark);
             font-size: 11px;
-            font-weight: 500;
             padding: 3px 8px;
             border-radius: 8px;
         }
@@ -355,12 +270,10 @@
 </head>
 <body>
 
-    <!-- Header -->
     <div class="header">
         <h1>🌸 Gestione <span>Stipendio</span></h1>
     </div>
 
-    <!-- Period Card -->
     <div class="card">
         <div class="period-nav">
             <button class="btn-nav" onclick="changePeriod(-1)">❮ Prec</button>
@@ -372,7 +285,6 @@
         </div>
     </div>
 
-    <!-- Stats Grid -->
     <div class="stats-grid">
         <div class="stat-card entrate">
             <div class="stat-label">Entrate</div>
@@ -388,7 +300,6 @@
         </div>
     </div>
 
-    <!-- Chart -->
     <div class="card">
         <div class="section-title">📈 Uscite per Categoria</div>
         <div class="chart-container">
@@ -396,16 +307,15 @@
         </div>
     </div>
 
-    <!-- Add Movement Form -->
     <div class="card">
         <div class="section-title">➕ Nuova Operazione</div>
         
         <div class="tab-buttons">
-            <button class="tab-btn active" id="tabUscita" onclick="setType('uscita')">Uscita</button>
-            <button class="tab-btn" id="tabEntrata" onclick="setType('entrata')">Entrata</button>
+            <button class="tab-btn active" id="tabUscita" type="button" onclick="setType('uscita')">Uscita</button>
+            <button class="tab-btn" id="tabEntrata" type="button" onclick="setType('entrata')">Entrata</button>
         </div>
 
-        <form onsubmit="addMovement(event)">
+        <form id="addMovementForm">
             <div class="form-group">
                 <label>Importo (€)</label>
                 <input type="number" step="0.01" class="form-control" id="movAmount" placeholder="0.00" required>
@@ -425,49 +335,45 @@
 
             <div class="form-group">
                 <label>Note / Descrizione (opzionale)</label>
-                <input type="text" class="form-control" id="movNote" placeholder="Es. Spesa conad, Benzina...">
+                <input type="text" class="form-control" id="movNote" placeholder="Es. Spesa, Benzina...">
             </div>
 
             <button type="submit" class="btn-submit">Salva Operazione</button>
         </form>
     </div>
 
-    <!-- Movement List -->
     <div class="card">
         <div class="section-title">📋 Movimenti del Mese</div>
         <div id="movementList"></div>
     </div>
 
-    <!-- Category & Subcategory Management -->
     <div class="card">
         <div class="section-title">🏷️ Categorie & Sottocategorie</div>
         
-        <form onsubmit="addNewCategory(event)" style="margin-bottom: 12px;">
+        <form id="addCategoryForm" style="margin-bottom: 12px;">
             <div class="form-group">
-                <label>Aggiungi Nuova Categoria (con Emoji)</label>
-                <input type="text" class="form-control" id="newCatName" placeholder="Es. 🐶 Lulù oppure 🚗 Auto" required>
+                <label>Aggiungi Nuova Categoria</label>
+                <input type="text" class="form-control" id="newCatName" placeholder="Es. 🐶 Lulù" required>
             </div>
             <button type="submit" class="btn-submit" style="background: #9a809e; padding: 10px;">+ Categoria</button>
         </form>
 
-        <form onsubmit="addNewSubcategory(event)">
+        <form id="addSubcategoryForm">
             <div class="form-group">
-                <label>Aggiungi Sottocategoria a Categoria Esistente</label>
+                <label>Aggiungi Sottocategoria</label>
                 <select class="form-control" id="parentCategorySelect" style="margin-bottom: 6px;"></select>
-                <input type="text" class="form-control" id="newSubCatName" placeholder="Es. Veterinario, Cibo, Palestra..." required>
+                <input type="text" class="form-control" id="newSubCatName" placeholder="Es. Veterinario..." required>
             </div>
             <button type="submit" class="btn-submit" style="background: #8b718f; padding: 10px;">+ Sottocategoria</button>
         </form>
 
-        <!-- Existing Categories List -->
-        <div class="category-list-box">
-            <div class="section-title" style="font-size: 13px; margin-top: 4px;">📂 Categorie Presenti</div>
+        <div style="margin-top: 14px; border-top: 1px solid var(--border-color); padding-top: 12px;">
+            <div class="section-title" style="font-size: 13px;">📂 Categorie Presenti</div>
             <div id="existingCategoriesContainer"></div>
         </div>
     </div>
 
     <script>
-        // Categorie predefinite aggiornate
         const defaultCategories = {
             "Lulù🐾": ["Toelettatura", "Cibo e snack", "Accessori"],
             "Salute💊": ["Medicine", "Psicologa", "Visite"],
@@ -485,17 +391,21 @@
         let movements = [];
         let chartInstance = null;
 
-        // Load data on start
         window.onload = function() {
             loadCategories();
             loadMovements();
+            
+            document.getElementById('addMovementForm').addEventListener('submit', addMovement);
+            document.getElementById('addCategoryForm').addEventListener('submit', addNewCategory);
+            document.getElementById('addSubcategoryForm').addEventListener('submit', addNewSubcategory);
+
             renderAll();
         };
 
         function loadCategories() {
             const saved = localStorage.getItem('gestione_stipendio_cats');
             if (saved) {
-                categories = JSON.parse(saved);
+                try { categories = JSON.parse(saved); } catch(e) { categories = defaultCategories; }
             } else {
                 categories = defaultCategories;
                 saveCategories();
@@ -509,7 +419,7 @@
         function loadMovements() {
             const saved = localStorage.getItem('gestione_stipendio_movs');
             if (saved) {
-                movements = JSON.parse(saved);
+                try { movements = JSON.parse(saved); } catch(e) { movements = []; }
             } else {
                 movements = [];
             }
@@ -523,7 +433,6 @@
             currentType = type;
             document.getElementById('tabUscita').classList.toggle('active', type === 'uscita');
             document.getElementById('tabEntrata').classList.toggle('active', type === 'entrata');
-            updateCategoryDropdowns();
         }
 
         function getPeriodDates(offset) {
@@ -559,6 +468,7 @@
             const catSelect = document.getElementById('movCategory');
             const parentCatSelect = document.getElementById('parentCategorySelect');
             
+            const currentCatVal = catSelect.value;
             catSelect.innerHTML = '';
             parentCatSelect.innerHTML = '';
 
@@ -574,6 +484,10 @@
                 parentCatSelect.appendChild(optParent);
             });
 
+            if (currentCatVal && categories[currentCatVal]) {
+                catSelect.value = currentCatVal;
+            }
+
             updateSubcategories();
             renderExistingCategoriesList();
         }
@@ -582,6 +496,11 @@
             const selectedCat = document.getElementById('movCategory').value;
             const subSelect = document.getElementById('movSubcategory');
             subSelect.innerHTML = '';
+
+            let optEmpty = document.createElement('option');
+            optEmpty.value = '';
+            optEmpty.textContent = '-- Nessuna / Generale --';
+            subSelect.appendChild(optEmpty);
 
             if (selectedCat && categories[selectedCat]) {
                 categories[selectedCat].forEach(sub => {
@@ -654,12 +573,22 @@
 
         function addMovement(e) {
             e.preventDefault();
-            const amount = parseFloat(document.getElementById('movAmount').value);
+            
+            const amountInput = document.getElementById('movAmount');
+            const amount = parseFloat(amountInput.value);
             const category = document.getElementById('movCategory').value;
             const subcategory = document.getElementById('movSubcategory').value || '';
             const note = document.getElementById('movNote').value.trim();
 
-            if (!amount || amount <= 0) return;
+            if (isNaN(amount) || amount <= 0) {
+                alert('Inserisci un importo valido.');
+                return;
+            }
+
+            if (!category) {
+                alert('Seleziona una categoria.');
+                return;
+            }
 
             const movement = {
                 id: Date.now(),
@@ -674,8 +603,7 @@
             movements.push(movement);
             saveMovements();
 
-            // Reset form
-            document.getElementById('movAmount').value = '';
+            amountInput.value = '';
             document.getElementById('movNote').value = '';
 
             renderAll();
@@ -694,13 +622,11 @@
 
             const { startDate, endDate } = getPeriodDates(currentPeriodOffset);
 
-            // Filter movements for current period
             const periodMovements = movements.filter(m => {
                 const mDate = new Date(m.date);
                 return mDate >= startDate && mDate <= endDate;
             });
 
-            // Calculate totals
             let totEntrate = 0;
             let totUscite = 0;
             let catTotals = {};
@@ -734,7 +660,6 @@
                 return;
             }
 
-            // Sort newest first
             const sorted = [...list].sort((a,b) => new Date(b.date) - new Date(a.date));
 
             sorted.forEach(m => {
