@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Gestione Stipendio</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Libreria per la generazione del PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         :root {
             --bg-color: #f7f5f7;
@@ -171,8 +173,25 @@
             margin-bottom: 12px;
             display: flex;
             align-items: center;
-            gap: 6px;
+            justify-content: space-between;
             color: var(--text-dark);
+        }
+
+        .btn-pdf {
+            background: var(--primary-light);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            border-radius: 8px;
+            padding: 6px 10px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-pdf:active {
+            background: var(--primary);
+            color: white;
         }
 
         /* Forms & Tabs */
@@ -355,44 +374,55 @@
 </head>
 <body>
 
-    <!-- Header -->
-    <div class="header">
-        <h1>🌸 Gestione <span>Stipendio</span></h1>
-    </div>
+    <div id="exportArea">
+        <!-- Header -->
+        <div class="header">
+            <h1>🌸 Gestione <span>Stipendio</span></h1>
+        </div>
 
-    <!-- Period Card -->
-    <div class="card">
-        <div class="period-nav">
-            <button class="btn-nav" onclick="changePeriod(-1)">❮ Prec</button>
-            <div>
-                <div class="period-title" id="periodDisplay">--</div>
-                <div class="period-subtitle" id="periodSubDisplay">Mese Corrente</div>
+        <!-- Period Card -->
+        <div class="card">
+            <div class="period-nav">
+                <button class="btn-nav" data-html2canvas-ignore="true" onclick="changePeriod(-1)">❮ Prec</button>
+                <div>
+                    <div class="period-title" id="periodDisplay">--</div>
+                    <div class="period-subtitle" id="periodSubDisplay">Mese Corrente</div>
+                </div>
+                <button class="btn-nav" data-html2canvas-ignore="true" onclick="changePeriod(1)">Succ ❯</button>
             </div>
-            <button class="btn-nav" onclick="changePeriod(1)">Succ ❯</button>
         </div>
-    </div>
 
-    <!-- Stats Grid -->
-    <div class="stats-grid">
-        <div class="stat-card entrate">
-            <div class="stat-label">Entrate</div>
-            <div class="stat-value" id="totalEntrate">€ 0.00</div>
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card entrate">
+                <div class="stat-label">Entrate</div>
+                <div class="stat-value" id="totalEntrate">€ 0.00</div>
+            </div>
+            <div class="stat-card uscite">
+                <div class="stat-label">Uscite</div>
+                <div class="stat-value" id="totalUscite">€ 0.00</div>
+            </div>
+            <div class="stat-card saldo full">
+                <div class="stat-label">Saldo Mese</div>
+                <div class="stat-value" id="totalSaldo">€ 0.00</div>
+            </div>
         </div>
-        <div class="stat-card uscite">
-            <div class="stat-label">Uscite</div>
-            <div class="stat-value" id="totalUscite">€ 0.00</div>
-        </div>
-        <div class="stat-card saldo full">
-            <div class="stat-label">Saldo Mese</div>
-            <div class="stat-value" id="totalSaldo">€ 0.00</div>
-        </div>
-    </div>
 
-    <!-- Chart -->
-    <div class="card">
-        <div class="section-title">📈 Uscite per Categoria</div>
-        <div class="chart-container">
-            <canvas id="categoryChart"></canvas>
+        <!-- Chart -->
+        <div class="card">
+            <div class="section-title">
+                <span>📈 Uscite per Categoria</span>
+                <button class="btn-pdf" data-html2canvas-ignore="true" onclick="exportPDF()">📄 Esporta PDF</button>
+            </div>
+            <div class="chart-container">
+                <canvas id="categoryChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Movement List -->
+        <div class="card">
+            <div class="section-title">📋 Movimenti del Mese</div>
+            <div id="movementList"></div>
         </div>
     </div>
 
@@ -432,12 +462,6 @@
         </form>
     </div>
 
-    <!-- Movement List -->
-    <div class="card">
-        <div class="section-title">📋 Movimenti del Mese</div>
-        <div id="movementList"></div>
-    </div>
-
     <!-- Category & Subcategory Management -->
     <div class="card">
         <div class="section-title">🏷️ Categorie & Sottocategorie</div>
@@ -467,7 +491,6 @@
     </div>
 
     <script>
-        // Categorie predefinite aggiornate
         const defaultCategories = {
             "Lulù🐾": ["Toelettatura", "Cibo e snack", "Accessori"],
             "Salute💊": ["Medicine", "Psicologa", "Visite"],
@@ -485,7 +508,6 @@
         let movements = [];
         let chartInstance = null;
 
-        // Load data on start
         window.onload = function() {
             loadCategories();
             loadMovements();
@@ -674,7 +696,6 @@
             movements.push(movement);
             saveMovements();
 
-            // Reset form
             document.getElementById('movAmount').value = '';
             document.getElementById('movNote').value = '';
 
@@ -694,13 +715,11 @@
 
             const { startDate, endDate } = getPeriodDates(currentPeriodOffset);
 
-            // Filter movements for current period
             const periodMovements = movements.filter(m => {
                 const mDate = new Date(m.date);
                 return mDate >= startDate && mDate <= endDate;
             });
 
-            // Calculate totals
             let totEntrate = 0;
             let totUscite = 0;
             let catTotals = {};
@@ -734,7 +753,6 @@
                 return;
             }
 
-            // Sort newest first
             const sorted = [...list].sort((a,b) => new Date(b.date) - new Date(a.date));
 
             sorted.forEach(m => {
@@ -757,7 +775,7 @@
                     </div>
                     <div style="display:flex; align-items:center;">
                         <div class="movement-amount ${amountClass}">${sign} € ${m.amount.toFixed(2)}</div>
-                        <button class="btn-delete" onclick="deleteMovement(${m.id})">✕</button>
+                        <button class="btn-delete" data-html2canvas-ignore="true" onclick="deleteMovement(${m.id})">✕</button>
                     </div>
                 `;
                 container.appendChild(item);
@@ -811,6 +829,22 @@
                     cutout: '65%'
                 }
             });
+        }
+
+        // Funzione Esportazione PDF
+        function exportPDF() {
+            const element = document.getElementById('exportArea');
+            const subTitle = document.getElementById('periodSubDisplay').textContent;
+            
+            const opt = {
+                margin:       10,
+                filename:     `Resoconto_${subTitle.replace(/\s+/g, '_')}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(element).save();
         }
     </script>
 </body>
