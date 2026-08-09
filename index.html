@@ -583,7 +583,7 @@
         window.onload = function() {
             loadCategories();
             loadMovements();
-            populateFilterCategories();
+            updateCategoryDropdowns();
             renderAll();
         };
 
@@ -669,7 +669,7 @@
                 filterCat.appendChild(opt);
             });
 
-            filterCat.value = selected && categories[selected] ? selected : 'ALL';
+            filterCat.value = selected && (selected === 'ALL' || categories[selected]) ? selected : 'ALL';
             updateFilterSubcategories();
         }
 
@@ -681,6 +681,8 @@
         function updateFilterSubcategories() {
             const filterCat = document.getElementById('filterCat').value;
             const filterSubcat = document.getElementById('filterSubcat');
+            const currentSubVal = filterSubcat.value;
+
             filterSubcat.innerHTML = '<option value="ALL">Tutte le sottocategorie</option>';
 
             if (filterCat !== 'ALL' && categories[filterCat]) {
@@ -690,6 +692,12 @@
                     opt.textContent = sub;
                     filterSubcat.appendChild(opt);
                 });
+            }
+
+            if (Array.from(filterSubcat.options).some(o => o.value === currentSubVal)) {
+                filterSubcat.value = currentSubVal;
+            } else {
+                filterSubcat.value = 'ALL';
             }
         }
 
@@ -889,7 +897,6 @@
 
             renderMovementsList(filteredMovements);
             renderChart(catTotals);
-            updateCategoryDropdowns();
         }
 
         function renderMovementsList(list) {
