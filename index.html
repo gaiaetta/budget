@@ -275,7 +275,23 @@
             transform: scale(0.99);
         }
 
-        /* Movement List */
+        /* Movement List & Filters */
+        .filter-box {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 12px;
+            background: #faf7f9;
+            padding: 10px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .filter-box select {
+            font-size: 13px;
+            padding: 8px 10px;
+        }
+
         .movement-item {
             display: flex;
             align-items: center;
@@ -426,6 +442,21 @@
         <!-- Movement List -->
         <div class="card">
             <div class="section-title">📋 Movimenti del Mese</div>
+            
+            <!-- Filter Options -->
+            <div class="filter-box" data-html2canvas-ignore="true">
+                <div>
+                    <select class="form-control" id="filterCat" onchange="onFilterCatChange()">
+                        <option value="ALL">Tutte le categorie</option>
+                    </select>
+                </div>
+                <div>
+                    <select class="form-control" id="filterSubcat" onchange="renderAll()">
+                        <option value="ALL">Tutte le sottocategorie</option>
+                    </select>
+                </div>
+            </div>
+
             <div id="movementList"></div>
         </div>
     </div>
@@ -515,6 +546,7 @@
         window.onload = function() {
             loadCategories();
             loadMovements();
+            populateFilterCategories();
             renderAll();
         };
 
@@ -558,12 +590,10 @@
             let month = now.getMonth();
             let year = now.getFullYear();
 
-            // Se siamo prima del 10 del mese, il ciclo corrente della paga parte dal 10 del mese precedente
             if (day < 10) {
                 month -= 1;
             }
 
-            // Applica l'offset dei pulsanti "Prec" e "Succ"
             month += offset;
 
             let startDate = new Date(year, month, 10);
@@ -590,6 +620,42 @@
             renderAll();
         }
 
+        function populateFilterCategories() {
+            const filterCat = document.getElementById('filterCat');
+            const selected = filterCat.value;
+            filterCat.innerHTML = '<option value="ALL">Tutte le categorie</option>';
+
+            Object.keys(categories).forEach(cat => {
+                let opt = document.createElement('option');
+                opt.value = cat;
+                opt.textContent = cat;
+                filterCat.appendChild(opt);
+            });
+
+            filterCat.value = selected && categories[selected] ? selected : 'ALL';
+            updateFilterSubcategories();
+        }
+
+        function onFilterCatChange() {
+            updateFilterSubcategories();
+            renderAll();
+        }
+
+        function updateFilterSubcategories() {
+            const filterCat = document.getElementById('filterCat').value;
+            const filterSubcat = document.getElementById('filterSubcat');
+            filterSubcat.innerHTML = '<option value="ALL">Tutte le sottocategorie</option>';
+
+            if (filterCat !== 'ALL' && categories[filterCat]) {
+                categories[filterCat].forEach(sub => {
+                    let opt = document.createElement('option');
+                    opt.value = sub;
+                    opt.textContent = sub;
+                    filterSubcat.appendChild(opt);
+                });
+            }
+        }
+
         function updateCategoryDropdowns() {
             const catSelect = document.getElementById('movCategory');
             const parentCatSelect = document.getElementById('parentCategorySelect');
@@ -611,6 +677,7 @@
 
             updateSubcategories();
             renderExistingCategoriesList();
+            populateFilterCategories();
         }
 
         function updateSubcategories() {
@@ -752,7 +819,17 @@
             document.getElementById('totalUscite').textContent = `€ ${totUscite.toFixed(2)}`;
             document.getElementById('totalSaldo').textContent = `€ ${saldo.toFixed(2)}`;
 
-            renderMovementsList(periodMovements);
+            // Filtra per la lista
+            const selectedCat = document.getElementById('filterCat').value;
+            const selectedSubcat = document.getElementById('filterSubcat').value;
+
+            const filteredMovements = periodMovements.filter(m => {
+                const catMatch = selectedCat === 'ALL' || m.category === selectedCat;
+                const subcatMatch = selectedSubcat === 'ALL' || m.subcategory === selectedSubcat;
+                return catMatch && subcatMatch;
+            });
+
+            renderMovementsList(filteredMovements);
             renderChart(catTotals);
             updateCategoryDropdowns();
         }
@@ -762,7 +839,7 @@
             container.innerHTML = '';
 
             if (list.length === 0) {
-                container.innerHTML = '<div class="empty-msg">Nessun movimento in questo periodo.</div>';
+                container.innerHTML = '<div class="empty-msg">Nessun movimento trovato.</div>';
                 return;
             }
 
