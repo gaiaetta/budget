@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
     <title>Gestione Stipendio</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Libreria per la generazione del PDF -->
@@ -38,6 +38,10 @@
             max-width: 500px;
             margin: 0 auto;
             padding-bottom: 40px;
+            
+            /* Blocco dello zoom e interazioni veloci */
+            touch-action: manipulation;
+            -webkit-text-size-adjust: 100%;
         }
 
         /* Header */
@@ -239,7 +243,7 @@
             padding: 12px 14px;
             border: 1px solid var(--border-color);
             border-radius: 12px;
-            font-size: 14px;
+            font-size: 16px; /* Impostato a 16px per evitare lo zoom automatico su iOS */
             outline: none;
             background: #faf7f9;
             color: var(--text-dark);
