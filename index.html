@@ -243,7 +243,7 @@
             padding: 12px 14px;
             border: 1px solid var(--border-color);
             border-radius: 12px;
-            font-size: 16px; /* Impostato a 16px per evitare lo zoom automatico su iOS */
+            font-size: 16px;
             outline: none;
             background: #faf7f9;
             color: var(--text-dark);
@@ -554,8 +554,17 @@
 
         function getPeriodDates(offset) {
             const now = new Date();
+            let day = now.getDate();
+            let month = now.getMonth();
             let year = now.getFullYear();
-            let month = now.getMonth() + offset;
+
+            // Se siamo prima del 10 del mese, il ciclo corrente della paga parte dal 10 del mese precedente
+            if (day < 10) {
+                month -= 1;
+            }
+
+            // Applica l'offset dei pulsanti "Prec" e "Succ"
+            month += offset;
 
             let startDate = new Date(year, month, 10);
             let endDate = new Date(year, month + 1, 9, 23, 59, 59);
