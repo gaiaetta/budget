@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Gestione Stipendio</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Libreria per la generazione del PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         :root {
@@ -40,7 +39,6 @@
             padding-bottom: 40px;
         }
 
-        /* Header */
         .header {
             display: flex;
             align-items: center;
@@ -62,7 +60,6 @@
             color: var(--primary);
         }
 
-        /* Period Selector Card */
         .card {
             background: var(--card-bg);
             border-radius: var(--radius);
@@ -111,7 +108,6 @@
             margin-top: 2px;
         }
 
-        /* Summary Stats */
         .stats-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -159,7 +155,6 @@
             color: var(--text-dark);
         }
 
-        /* Chart & Budget */
         .chart-container {
             position: relative;
             height: 220px;
@@ -194,7 +189,6 @@
             color: white;
         }
 
-        /* Forms & Tabs */
         .tab-buttons {
             display: flex;
             background: #ede6eb;
@@ -271,7 +265,6 @@
             transform: scale(0.99);
         }
 
-        /* Movement List */
         .movement-item {
             display: flex;
             align-items: center;
@@ -324,7 +317,6 @@
             color: var(--accent-red);
         }
 
-        /* Category Manager List */
         .category-list-box {
             margin-top: 14px;
             border-top: 1px solid var(--border-color);
@@ -374,12 +366,13 @@
 </head>
 <body>
 
-    <div id="exportArea">
-        <!-- Header -->
-        <div class="header">
-            <h1>🌸 Gestione <span>Stipendio</span></h1>
-        </div>
+    <!-- Header -->
+    <div class="header">
+        <h1>🌸 Gestione <span>Stipendio</span></h1>
+    </div>
 
+    <!-- Area da Esportare nel PDF -->
+    <div id="exportArea">
         <!-- Period Card -->
         <div class="card">
             <div class="period-nav">
@@ -581,6 +574,8 @@
             const catSelect = document.getElementById('movCategory');
             const parentCatSelect = document.getElementById('parentCategorySelect');
             
+            if (!catSelect || !parentCatSelect) return;
+
             catSelect.innerHTML = '';
             parentCatSelect.innerHTML = '';
 
@@ -603,6 +598,8 @@
         function updateSubcategories() {
             const selectedCat = document.getElementById('movCategory').value;
             const subSelect = document.getElementById('movSubcategory');
+            if (!subSelect) return;
+
             subSelect.innerHTML = '';
 
             if (selectedCat && categories[selectedCat]) {
@@ -617,6 +614,8 @@
 
         function renderExistingCategoriesList() {
             const container = document.getElementById('existingCategoriesContainer');
+            if (!container) return;
+
             container.innerHTML = '';
 
             Object.keys(categories).forEach(cat => {
@@ -831,7 +830,6 @@
             });
         }
 
-        // Funzione Esportazione PDF
         function exportPDF() {
             const element = document.getElementById('exportArea');
             const subTitle = document.getElementById('periodSubDisplay').textContent;
