@@ -3,283 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestione Budget - Regola 50/30/20</title>
+    <title>Gestione Budget</title>
     <style>
-        :root {
-            --bg-color: #f4f7f6;
-            --card-bg: #ffffff;
-            --primary: #2c3e50;
-            --necessita: #e74c3c;
-            --svago: #3498db;
-            --risparmi: #2ecc71;
-            --text: #333333;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text);
-            margin: 0;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-        }
-
-        h1, h2, h3 {
-            color: var(--primary);
-        }
-
-        .card {
-            background-color: var(--card-bg);
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-
-        input, select, button {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-sizing: border-box;
-        }
-
-        button {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-weight: bold;
-            margin-top: 10px;
-        }
-
-        button:hover {
-            opacity: 0.9;
-        }
-
-        .grid-3 {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
-        }
-
-        .block {
-            padding: 15px;
-            border-radius: 8px;
-            color: white;
-        }
-
-        .block.necessita { background-color: var(--necessita); }
-        .block.svago { background-color: var(--svago); }
-        .block.risparmi { background-color: var(--risparmi); }
-
-        .block h3 {
-            color: white;
-            margin-top: 0;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-
-        th, td {
-            text-align: left;
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .text-red { color: var(--necessita); font-weight: bold; }
-        .text-green { color: var(--risparmi); font-weight: bold; }
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .block { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 5px; }
+        label { display: block; margin-top: 10px; }
+        input, select, button { margin-top: 5px; padding: 8px; width: 100%; box-sizing: border-box; }
+        button { background-color: #28a745; color: white; border: none; cursor: pointer; margin-top: 15px; }
+        button:hover { background-color: #218838; }
+        .grid { display: flex; gap: 10px; }
+        .grid > div { flex: 1; border: 1px solid #ddd; padding: 10px; border-radius: 5px; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>Gestione Budget & Ripartizione</h1>
+    <h2>Aggiungi Operazione</h2>
+    <div class="block">
+        <label for="descrizione">Descrizione:</label>
+        <input type="text" id="descrizione" placeholder="Es. Spesa, Stipendio...">
 
-    <!-- Impostazione Budget Iniziale -->
-    <div class="card">
-        <h2>1. Imposta Entrata/Budget Mensile</h2>
-        <div class="form-group">
-            <label for="budget">Entrata Totale (€):</label>
-            <input type="number" id="budget" placeholder="Es. 1500" value="0" oninput="aggiornaCalcoli()">
-        </div>
+        <label for="importo">Importo (€):</label>
+        <input type="number" id="importo" placeholder="Es. 50 o -50">
+
+        <label for="categoria">Categoria Destinazione:</label>
+        <select id="categoria">
+            <option value="necessita">Necessità (50%)</option>
+            <option value="svago">Svago (30%)</option>
+            <option value="risparmi">Risparmi (20%)</option>
+        </select>
+
+        <button onclick="aggiungiOperazione()">Aggiungi</button>
     </div>
 
-    <!-- Aggiunta Operazione -->
-    <div class="card">
-        <h2>2. Aggiungi Operazione</h2>
-        <div class="form-group">
-            <label for="descrizione">Descrizione:</label>
-            <input type="text" id="descrizione" placeholder="Es. Spesa al supermercato">
-        </div>
-        <div class="form-group">
-            <label for="importo">Importo (€):</label>
-            <input type="number" id="importo" placeholder="Es. 50">
-        </div>
-        <div class="form-group">
-            <label for="categoria">Categoria di destinazione:</label>
-            <select id="categoria">
-                <option value="necessita">Necessità (50%)</option>
-                <option value="svago">Svago (30%)</option>
-                <option value="risparmi">Risparmi (20%)</option>
-            </select>
-        </div>
-        <button onclick="aggiungiOperazione()">Aggiungi Transazione</button>
-    </div>
+    <h2>Consigli Ripartizione (50/30/20)</h2>
+    <div class="block">
+        <label for="entrateTotali">Inserisci Entrata Totale (€):</label>
+        <input type="number" id="entrateTotali" placeholder="Es. 1500" oninput="calcolaRipartizione()">
 
-    <!-- Consigli e Ripartizione -->
-    <div class="card">
-        <h2>3. Consigli e Ripartizione (Regola 50/30/20)</h2>
-        <div class="grid-3">
-            <div class="block necessita">
-                <h3>Necessità (50%)</h3>
-                <p>Budget Iniziale: €<span id="budget-necessita">0.00</span></p>
-                <p>Spesi: €<span id="spesi-necessita">0.00</span></p>
-                <p><strong>Rimanenti: €<span id="restanti-necessita">0.00</span></strong></p>
+        <div class="grid" style="margin-top: 15px;">
+            <div>
+                <strong>Necessità (50%)</strong>
+                <p>Budget: €<span id="budget-necessita">0</span></p>
+                <p>Spesi: €<span id="spesi-necessita">0</span></p>
+                <p>Rimanenti: €<span id="restanti-necessita">0</span></p>
             </div>
-            <div class="block svago">
-                <h3>Svago (30%)</h3>
-                <p>Budget Iniziale: €<span id="budget-svago">0.00</span></p>
-                <p>Spesi: €<span id="spesi-svago">0.00</span></p>
-                <p><strong>Rimanenti: €<span id="restanti-svago">0.00</span></strong></p>
+            <div>
+                <strong>Svago (30%)</strong>
+                <p>Budget: €<span id="budget-svago">0</span></p>
+                <p>Spesi: €<span id="spesi-svago">0</span></p>
+                <p>Rimanenti: €<span id="restanti-svago">0</span></p>
             </div>
-            <div class="block risparmi">
-                <h3>Risparmi (20%)</h3>
-                <p>Budget Iniziale: €<span id="budget-risparmi">0.00</span></p>
-                <p>Spesi: €<span id="spesi-risparmi">0.00</span></p>
-                <p><strong>Rimanenti: €<span id="restanti-risparmi">0.00</span></strong></p>
+            <div>
+                <strong>Risparmi (20%)</strong>
+                <p>Budget: €<span id="budget-risparmi">0</span></p>
+                <p>Spesi: €<span id="spesi-risparmi">0</span></p>
+                <p>Rimanenti: €<span id="restanti-risparmi">0</span></p>
             </div>
         </div>
     </div>
 
-    <!-- Storico Operazioni -->
-    <div class="card">
-        <h2>Storico Operazioni</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Descrizione</th>
-                    <th>Categoria</th>
-                    <th>Importo</th>
-                    <th>Azione</th>
-                </tr>
-            </thead>
-            <tbody id="lista-operazioni">
-                <!-- Le operazioni verranno inserite qui dinamicamente -->
-            </tbody>
-        </table>
-    </div>
-</div>
+    <h2>Storico Operazioni</h2>
+    <ul id="listaOperazioni"></ul>
 
-<script>
-    let operazioni = [];
+    <script>
+        let operazioni = [];
 
-    function aggiungiOperazione() {
-        const desc = document.getElementById('descrizione').value.trim();
-        const importo = parseFloat(document.getElementById('importo').value);
-        const categoria = document.getElementById('categoria').value;
+        function aggiungiOperazione() {
+            const desc = document.getElementById('descrizione').value;
+            const imp = parseFloat(document.getElementById('importo').value);
+            const cat = document.getElementById('categoria').value;
 
-        if (!desc || isNaN(importo) || importo <= 0) {
-            alert('Inserisci una descrizione valida e un importo maggiore di zero.');
-            return;
+            if (!desc || isNaN(imp)) return;
+
+            operazioni.push({ descrizione: desc, importo: imp, categoria: cat });
+            
+            document.getElementById('descrizione').value = '';
+            document.getElementById('importo').value = '';
+
+            aggiornaLista();
+            calcolaRipartizione();
         }
 
-        const nuovaOperazione = {
-            id: Date.now(),
-            descrizione: desc,
-            importo: importo,
-            categoria: categoria
-        };
+        function aggiornaLista() {
+            const lista = document.getElementById('listaOperazioni');
+            lista.innerHTML = '';
+            operazioni.forEach(op => {
+                const li = document.createElement('li');
+                li.textContent = `${op.descrizione}: €${op.importo} [${op.categoria}]`;
+                lista.appendChild(li);
+            });
+        }
 
-        operazioni.push(nuovaOperazione);
-        
-        // Reset campi input
-        document.getElementById('descrizione').value = '';
-        document.getElementById('importo').value = '';
+        function calcolaRipartizione() {
+            const totale = parseFloat(document.getElementById('entrateTotali').value) || 0;
 
-        aggiornaCalcoli();
-    }
+            const bNecessita = totale * 0.50;
+            const bSvago = totale * 0.30;
+            const bRisparmi = totale * 0.20;
 
-    function rimuoviOperazione(id) {
-        operazioni = operazioni.filter(op => op.id !== id);
-        aggiornaCalcoli();
-    }
+            let sNecessita = 0;
+            let sSvago = 0;
+            let sRisparmi = 0;
 
-    function aggiornaCalcoli() {
-        const budgetTotale = parseFloat(document.getElementById('budget').value) || 0;
+            operazioni.forEach(op => {
+                const valore = Math.abs(op.importo);
+                if (op.categoria === 'necessita') sNecessita += valore;
+                if (op.categoria === 'svago') sSvago += valore;
+                if (op.categoria === 'risparmi') sRisparmi += valore;
+            });
 
-        // Calcolo quote teoriche (50/30/20)
-        const targetNecessita = budgetTotale * 0.50;
-        const targetSvago = budgetTotale * 0.30;
-        const targetRisparmi = budgetTotale * 0.20;
+            document.getElementById('budget-necessita').textContent = bNecessita.toFixed(2);
+            document.getElementById('spesi-necessita').textContent = sNecessita.toFixed(2);
+            document.getElementById('restanti-necessita').textContent = (bNecessita - sNecessita).toFixed(2);
 
-        // Totali spesi per categoria
-        let spesiNecessita = 0;
-        let spesiSvago = 0;
-        let spesiRisparmi = 0;
+            document.getElementById('budget-svago').textContent = bSvago.toFixed(2);
+            document.getElementById('spesi-svago').textContent = sSvago.toFixed(2);
+            document.getElementById('restanti-svago').textContent = (bSvago - sSvago).toFixed(2);
 
-        operazioni.forEach(op => {
-            if (op.categoria === 'necessita') spesiNecessita += op.importo;
-            if (op.categoria === 'svago') spesiSvago += op.importo;
-            if (op.categoria === 'risparmi') spesiRisparmi += op.importo;
-        });
-
-        // Aggiornamento interfaccia ripartizione
-        document.getElementById('budget-necessita').textContent = targetNecessita.toFixed(2);
-        document.getElementById('spesi-necessita').textContent = spesiNecessita.toFixed(2);
-        document.getElementById('restanti-necessita').textContent = (targetNecessita - spesiNecessita).toFixed(2);
-
-        document.getElementById('budget-svago').textContent = targetSvago.toFixed(2);
-        document.getElementById('spesi-svago').textContent = spesiSvago.toFixed(2);
-        document.getElementById('restanti-svago').textContent = (targetSvago - spesiSvago).toFixed(2);
-
-        document.getElementById('budget-risparmi').textContent = targetRisparmi.toFixed(2);
-        document.getElementById('spesi-risparmi').textContent = spesiRisparmi.toFixed(2);
-        document.getElementById('restanti-risparmi').textContent = (targetRisparmi - spesiRisparmi).toFixed(2);
-
-        // Aggiornamento tabella storico
-        renderTabella();
-    }
-
-    function renderTabella() {
-        const tbody = document.getElementById('lista-operazioni');
-        tbody.innerHTML = '';
-
-        operazioni.forEach(op => {
-            const tr = document.createElement('tr');
-            
-            let nomeCategoria = '';
-            if (op.categoria === 'necessita') nomeCategoria = 'Necessità';
-            if (op.categoria === 'svago') nomeCategoria = 'Svago';
-            if (op.categoria === 'risparmi') nomeCategoria = 'Risparmi';
-
-            tr.innerHTML = `
-                <td>${op.descrizione}</td>
-                <td>${nomeCategoria}</td>
-                <td>- €${op.importo.toFixed(2)}</td>
-                <td><button style="background-color: #c0392b; width: auto; padding: 5px 10px;" onclick="rimuoviOperazione(${op.id})">Elimina</button></td>
-            `;
-            tbody.appendChild(tr);
-        });
-    }
-</script>
-
+            document.getElementById('budget-risparmi').textContent = bRisparmi.toFixed(2);
+            document.getElementById('spesi-risparmi').textContent = sRisparmi.toFixed(2);
+            document.getElementById('restanti-risparmi').textContent = (bRisparmi - sRisparmi).toFixed(2);
+        }
+    </script>
 </body>
 </html>
