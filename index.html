@@ -2,1115 +2,424 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
-    <title>Gestione Stipendio</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestione Bilancio Personale</title>
     <style>
         :root {
-            --bg-color: #f7f5f7;
+            --bg-color: #f4f6f9;
             --card-bg: #ffffff;
-            --primary: #d8819d;
-            --primary-hover: #c46b87;
-            --primary-light: #fbebf0;
-            --text-dark: #332e34;
-            --text-muted: #7e737f;
-            --border-color: #eee6ec;
-            --accent-green: #68b087;
-            --accent-red: #e06d7d;
-            --accent-purple: #9b72cf;
-            --shadow: 0 4px 15px rgba(180, 140, 160, 0.08);
-            --radius: 16px;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            -webkit-tap-highlight-color: transparent;
+            --text-color: #333333;
+            --primary: #4a90e2;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --warning: #f1c40f;
+            --border: #e0e0e0;
         }
 
         body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg-color);
-            color: var(--text-dark);
-            padding: 16px;
-            max-width: 500px;
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
             margin: 0 auto;
-            padding-bottom: 40px;
-            touch-action: manipulation;
-            -webkit-text-size-adjust: 100%;
         }
 
-        /* Header */
-        .header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 18px;
-            padding: 8px 4px;
+        h1, h2 {
+            text-align: center;
+            color: #2c3e50;
         }
 
-        .header h1 {
-            font-size: 22px;
-            font-weight: 700;
-            color: var(--text-dark);
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
         }
 
-        .header h1 span {
-            color: var(--primary);
-        }
-
-        /* Period Selector Card */
         .card {
             background: var(--card-bg);
-            border-radius: var(--radius);
-            padding: 16px;
-            margin-bottom: 16px;
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border-color);
-        }
-
-        .period-nav {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 8px;
-        }
-
-        .btn-nav {
-            background: var(--primary-light);
-            color: var(--primary);
-            border: none;
-            border-radius: 12px;
-            padding: 10px 14px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .btn-nav:active {
-            transform: scale(0.96);
-            background: var(--primary);
-            color: white;
-        }
-
-        .period-title {
-            text-align: center;
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-dark);
-        }
-
-        .period-subtitle {
-            font-size: 11px;
-            color: var(--text-muted);
-            text-align: center;
-            margin-top: 2px;
-        }
-
-        /* Summary Stats */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-
-        .stat-card {
-            background: var(--card-bg);
-            border-radius: var(--radius);
-            padding: 14px;
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border-color);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .stat-card.full {
-            grid-column: span 2;
-        }
-
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 4px;
-        }
-
-        .stat-card.entrate::before { background-color: var(--accent-green); }
-        .stat-card.uscite::before { background-color: var(--accent-red); }
-        .stat-card.saldo::before { background-color: var(--primary); }
-
-        .stat-label {
-            font-size: 12px;
-            color: var(--text-muted);
-            font-weight: 500;
-            margin-bottom: 4px;
-        }
-
-        .stat-value {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--text-dark);
-        }
-
-        /* Chart & Budget */
-        .chart-container {
-            position: relative;
-            min-height: 250px;
-            width: 100%;
-            margin: 10px 0;
-        }
-
-        .section-title {
-            font-size: 15px;
-            font-weight: 700;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            color: var(--text-dark);
-        }
-
-        .btn-pdf {
-            background: var(--primary-light);
-            color: var(--primary);
-            border: 1px solid var(--primary);
+            padding: 15px;
             border-radius: 8px;
-            padding: 6px 10px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .btn-pdf:active {
-            background: var(--primary);
-            color: white;
-        }
-
-        /* Budget Rule / Advisor Section */
-        .budget-rule-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 8px;
-            margin-top: 10px;
-        }
-
-        .rule-card {
-            background: #faf7f9;
-            border-radius: 12px;
-            padding: 10px 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
             text-align: center;
-            border: 1px solid var(--border-color);
         }
 
-        .rule-card.needs { border-top: 3px solid var(--primary); }
-        .rule-card.wants { border-top: 3px solid var(--accent-purple); }
-        .rule-card.savings { border-top: 3px solid var(--accent-green); }
-
-        .rule-percent {
-            font-size: 11px;
-            font-weight: 700;
+        .card h3 {
+            margin: 0 0 10px 0;
+            font-size: 0.9em;
+            color: #7f8c8d;
             text-transform: uppercase;
-            color: var(--text-muted);
-            margin-bottom: 2px;
         }
 
-        .rule-title {
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-dark);
-            margin-bottom: 4px;
+        .card p {
+            margin: 0;
+            font-size: 1.5em;
+            font-weight: bold;
         }
 
-        .rule-amount {
-            font-size: 14px;
-            font-weight: 800;
-            color: var(--text-dark);
-        }
+        .income-val { color: var(--success); }
+        .expense-val { color: var(--danger); }
+        .balance-val { color: var(--primary); }
 
-        .rule-note {
-            font-size: 10px;
-            color: var(--text-muted);
-            margin-top: 4px;
-            line-height: 1.2;
-        }
-
-        /* Forms & Tabs */
-        .tab-buttons {
-            display: flex;
-            background: #ede6eb;
-            padding: 4px;
-            border-radius: 12px;
-            margin-bottom: 14px;
-        }
-
-        .tab-btn {
-            flex: 1;
-            border: none;
-            padding: 10px;
-            border-radius: 9px;
-            font-size: 13px;
-            font-weight: 600;
-            background: transparent;
-            color: var(--text-muted);
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .tab-btn.active {
+        .form-container, .table-container, .advice-container {
             background: var(--card-bg);
-            color: var(--primary);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
         }
 
-        .form-group {
-            margin-bottom: 12px;
+        form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
         }
 
-        .form-group label {
-            display: block;
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-muted);
-            margin-bottom: 6px;
+        input, select, button {
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 1em;
         }
 
-        .form-control {
-            width: 100%;
-            padding: 12px 14px;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            font-size: 16px;
-            outline: none;
-            background: #faf7f9;
-            color: var(--text-dark);
-            transition: border 0.2s;
-        }
-
-        .form-control:focus {
-            border-color: var(--primary);
-            background: #fff;
-        }
-
-        .btn-submit {
-            width: 100%;
-            background: var(--primary);
+        button {
+            background-color: var(--primary);
             color: white;
             border: none;
-            border-radius: 12px;
-            padding: 14px;
-            font-size: 15px;
-            font-weight: 700;
             cursor: pointer;
-            margin-top: 6px;
-            box-shadow: 0 4px 12px rgba(216, 129, 157, 0.3);
             transition: background 0.2s;
         }
 
-        .btn-submit:active {
-            background: var(--primary-hover);
-            transform: scale(0.99);
+        button:hover {
+            background-color: #357abd;
         }
 
-        /* Movement List & Filters */
-        .filter-box {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-bottom: 8px;
-            background: #faf7f9;
-            padding: 10px;
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
         }
 
-        .filter-box select {
-            font-size: 13px;
-            padding: 8px 10px;
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
         }
 
-        .filter-summary-card {
-            background: var(--primary-light);
-            border: 1px dashed var(--primary);
-            border-radius: 12px;
-            padding: 10px 14px;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+        th {
+            background-color: #f8f9fa;
         }
 
-        .filter-summary-info {
-            font-size: 12px;
-            color: var(--text-dark);
-            font-weight: 600;
-        }
-
-        .filter-summary-sub {
-            font-size: 11px;
-            color: var(--text-muted);
-            font-weight: 400;
-        }
-
-        .filter-summary-total {
-            font-size: 16px;
-            font-weight: 800;
-            color: var(--accent-red);
-        }
-
-        .movement-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .movement-item:last-child {
-            border-bottom: none;
-        }
-
-        .movement-info {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-
-        .movement-cat {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-dark);
-        }
-
-        .movement-sub {
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-
-        .movement-amount {
-            font-size: 15px;
-            font-weight: 700;
-            text-align: right;
-        }
-
-        .amount-entrata { color: var(--accent-green); }
-        .amount-uscita { color: var(--accent-red); }
+        .type-entrata { color: var(--success); font-weight: bold; }
+        .type-uscita { color: var(--danger); font-weight: bold; }
 
         .btn-delete {
-            background: none;
-            border: none;
-            color: #ccc;
-            font-size: 16px;
-            margin-left: 10px;
-            cursor: pointer;
-            padding: 4px;
+            background-color: var(--danger);
+            padding: 5px 10px;
+            font-size: 0.8em;
         }
 
-        .btn-delete:hover {
-            color: var(--accent-red);
+        .advice-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
         }
 
-        /* Category Manager List */
-        .category-list-box {
-            margin-top: 14px;
-            border-top: 1px solid var(--border-color);
-            padding-top: 12px;
+        .advice-card {
+            border: 1px solid var(--border);
+            border-left: 5px solid var(--primary);
+            padding: 15px;
+            border-radius: 4px;
+            background: #fafafa;
         }
 
-        .category-item {
-            background: #faf7f9;
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            padding: 10px 12px;
-            margin-bottom: 8px;
+        .advice-card h4 {
+            margin: 0 0 10px 0;
+            color: #2c3e50;
         }
 
-        .category-header {
+        .stat-line {
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            font-weight: 600;
-            font-size: 14px;
-            color: var(--text-dark);
+            margin-bottom: 5px;
+            font-size: 0.95em;
         }
 
-        .subcat-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin-top: 6px;
+        .progress-bar-bg {
+            background-color: #e0e0e0;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
         }
 
-        .subcat-tag {
-            background: #ede6eb;
-            color: var(--text-dark);
-            font-size: 11px;
-            font-weight: 500;
-            padding: 3px 8px;
-            border-radius: 8px;
+        .progress-bar-fill {
+            height: 100%;
+            background-color: var(--primary);
+            width: 0%;
+            transition: width 0.3s;
         }
 
-        .empty-msg {
-            text-align: center;
-            color: var(--text-muted);
-            font-size: 13px;
-            padding: 20px 0;
+        .over-budget {
+            background-color: var(--danger) !important;
         }
+
+        .remaining-positive { color: var(--success); font-weight: bold; }
+        .remaining-negative { color: var(--danger); font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <div id="exportArea">
-        <div class="header">
-            <h1>🌸 Gestione <span>Stipendio</span></h1>
-        </div>
+<div class="container">
+    <h1>Gestione Bilancio Personale</h1>
 
+    <!-- Dashboard Sintesi -->
+    <div class="dashboard">
         <div class="card">
-            <div class="period-nav">
-                <button class="btn-nav" data-html2canvas-ignore="true" onclick="changePeriod(-1)">❮ Prec</button>
-                <div>
-                    <div class="period-title" id="periodDisplay">--</div>
-                    <div class="period-subtitle" id="periodSubDisplay">Mese Corrente</div>
-                </div>
-                <button class="btn-nav" data-html2canvas-ignore="true" onclick="changePeriod(1)">Succ ❯</button>
-            </div>
+            <h3>Entrate Totali</h3>
+            <p id="total-income" class="income-val">€0.00</p>
         </div>
-
-        <div class="stats-grid">
-            <div class="stat-card entrate">
-                <div class="stat-label">Entrate</div>
-                <div class="stat-value" id="totalEntrate">€ 0.00</div>
-            </div>
-            <div class="stat-card uscite">
-                <div class="stat-label">Uscite</div>
-                <div class="stat-value" id="totalUscite">€ 0.00</div>
-            </div>
-            <div class="stat-card saldo full">
-                <div class="stat-label">Saldo Mese</div>
-                <div class="stat-value" id="totalSaldo">€ 0.00</div>
-            </div>
-        </div>
-
-        <!-- Suggerimento Ripartizione Stipendio (Regola 50/30/20) -->
         <div class="card">
-            <div class="section-title">
-                <span>💡 Consiglio Ripartizione (50/30/20)</span>
-            </div>
-            <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">
-                Calcolato automaticamente sulle entrate del mese selezionato:
-            </p>
-            <div class="budget-rule-grid">
-                <div class="rule-card needs">
-                    <div class="rule-percent">50%</div>
-                    <div class="rule-title">Necessità</div>
-                    <div class="rule-amount" id="ruleNeeds">€ 0.00</div>
-                    <div class="rule-note">Spesa, bollette, salute, trasporti</div>
-                </div>
-                <div class="rule-card wants">
-                    <div class="rule-percent">30%</div>
-                    <div class="rule-title">Svago</div>
-                    <div class="rule-amount" id="ruleWants">€ 0.00</div>
-                    <div class="rule-note">Shopping, uscite, tempo libero</div>
-                </div>
-                <div class="rule-card savings">
-                    <div class="rule-percent">20%</div>
-                    <div class="rule-title">Risparmi</div>
-                    <div class="rule-amount" id="ruleSavings">€ 0.00</div>
-                    <div class="rule-note">Fondo d'emergenza, obiettivi</div>
-                </div>
-            </div>
+            <h3>Uscite Totali</h3>
+            <p id="total-expense" class="expense-val">€0.00</p>
         </div>
-
         <div class="card">
-            <div class="section-title">
-                <span>📈 Uscite per Categoria</span>
-                <button class="btn-pdf" data-html2canvas-ignore="true" onclick="exportPDF()">📄 Esporta PDF</button>
-            </div>
-            <div class="chart-container">
-                <canvas id="categoryChart"></canvas>
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="section-title">📋 Movimenti del Mese</div>
-            
-            <div class="filter-box" data-html2canvas-ignore="true">
-                <div>
-                    <select class="form-control" id="filterCat" onchange="onFilterCatChange()">
-                        <option value="ALL">Tutte le categorie</option>
-                    </select>
-                </div>
-                <div>
-                    <select class="form-control" id="filterSubcat" onchange="renderAll()">
-                        <option value="ALL">Tutte le sottocategorie</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="filter-summary-card" id="filterSummaryCard">
-                <div>
-                    <div class="filter-summary-info" id="filterSummaryLabel">Totale Selezionato</div>
-                    <div class="filter-summary-sub" id="filterSummaryCount">0 operazioni</div>
-                </div>
-                <div class="filter-summary-total" id="filterSummaryAmount">€ 0.00</div>
-            </div>
-
-            <div id="movementList"></div>
+            <h3>Saldo Attuale</h3>
+            <p id="net-balance" class="balance-val">€0.00</p>
         </div>
     </div>
 
-    <div class="card">
-        <div class="section-title">➕ Nuova Operazione</div>
-        
-        <div class="tab-buttons">
-            <button class="tab-btn active" id="tabUscita" onclick="setType('uscita')">Uscita</button>
-            <button class="tab-btn" id="tabEntrata" onclick="setType('entrata')">Entrata</button>
-        </div>
-
-        <form onsubmit="addMovement(event)">
-            <div class="form-group">
-                <label>Importo (€)</label>
-                <input type="number" step="0.01" class="form-control" id="movAmount" placeholder="0.00" required>
-            </div>
-
-            <div class="form-group">
-                <label>Categoria</label>
-                <select class="form-control" id="movCategory" onchange="updateSubcategories()" required>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label>Sottocategoria</label>
-                <select class="form-control" id="movSubcategory">
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label>Note / Descrizione (opzionale)</label>
-                <input type="text" class="form-control" id="movNote" placeholder="Es. Spesa conad, Benzina...">
-            </div>
-
-            <button type="submit" class="btn-submit">Salva Operazione</button>
+    <!-- Form Aggiunta Operazione -->
+    <div class="form-container">
+        <h2>Aggiungi Operazione</h2>
+        <form id="transaction-form">
+            <input type="text" id="description" placeholder="Descrizione" required>
+            <input type="number" id="amount" step="0.01" placeholder="Importo (€)" required>
+            <select id="type" onchange="toggleCategorySelect()" required>
+                <option value="entrata">Entrata</option>
+                <option value="uscita">Uscita</option>
+            </select>
+            <select id="category">
+                <option value="nessuna">Nessuna (Entrata)</option>
+                <option value="necessita">Necessità (50%)</option>
+                <option value="svago">Svago (30%)</option>
+                <option value="risparmio">Risparmio (20%)</option>
+            </select>
+            <button type="submit">Aggiungi</button>
         </form>
     </div>
 
-    <div class="card">
-        <div class="section-title">🏷️ Categorie & Sottocategorie</div>
-        
-        <form onsubmit="addNewCategory(event)" style="margin-bottom: 12px;">
-            <div class="form-group">
-                <label>Aggiungi Nuova Categoria (con Emoji)</label>
-                <input type="text" class="form-control" id="newCatName" placeholder="Es. 🐶 Lulù oppure 🚗 Auto" required>
+    <!-- Consiglio Ripartizione Budget (50/30/20) -->
+    <div class="advice-container">
+        <h2>Consiglio Ripartizione Budget (Regola 50/30/20)</h2>
+        <p style="font-size: 0.9em; color: #666; text-align: center; margin-top: -10px;">
+            Calcolato sul totale delle entrate registrate.
+        </p>
+        <div class="advice-grid">
+            <!-- Necessità -->
+            <div class="advice-card" style="border-left-color: #3498db;">
+                <h4>Necessità (50%)</h4>
+                <div class="stat-line"><span>Budget Teorico:</span> <span id="budget-necessita">€0.00</span></div>
+                <div class="stat-line"><span>Speso:</span> <span id="spent-necessita">€0.00</span></div>
+                <div class="stat-line"><span>Rimanente:</span> <span id="remain-necessita" class="remaining-positive">€0.00</span></div>
+                <div class="progress-bar-bg"><div id="progress-necessita" class="progress-bar-fill"></div></div>
             </div>
-            <button type="submit" class="btn-submit" style="background: #9a809e; padding: 10px;">+ Categoria</button>
-        </form>
-
-        <form onsubmit="addNewSubcategory(event)">
-            <div class="form-group">
-                <label>Aggiungi Sottocategoria a Categoria Esistente</label>
-                <select class="form-control" id="parentCategorySelect" style="margin-bottom: 6px;"></select>
-                <input type="text" class="form-control" id="newSubCatName" placeholder="Es. Veterinario, Cibo, Palestra..." required>
+            <!-- Svago -->
+            <div class="advice-card" style="border-left-color: #e67e22;">
+                <h4>Svago (30%)</h4>
+                <div class="stat-line"><span>Budget Teorico:</span> <span id="budget-svago">€0.00</span></div>
+                <div class="stat-line"><span>Speso:</span> <span id="spent-svago">€0.00</span></div>
+                <div class="stat-line"><span>Rimanente:</span> <span id="remain-svago" class="remaining-positive">€0.00</span></div>
+                <div class="progress-bar-bg"><div id="progress-svago" class="progress-bar-fill"></div></div>
             </div>
-            <button type="submit" class="btn-submit" style="background: #8b718f; padding: 10px;">+ Sottocategoria</button>
-        </form>
-
-        <div class="category-list-box">
-            <div class="section-title" style="font-size: 13px; margin-top: 4px;">📂 Categorie Presenti</div>
-            <div id="existingCategoriesContainer"></div>
+            <!-- Risparmio -->
+            <div class="advice-card" style="border-left-color: #2ecc71;">
+                <h4>Risparmio / Debiti (20%)</h4>
+                <div class="stat-line"><span>Target Teorico:</span> <span id="budget-risparmio">€0.00</span></div>
+                <div class="stat-line"><span>Allocato/Accantonato:</span> <span id="spent-risparmio">€0.00</span></div>
+                <div class="stat-line"><span>Ancora da Allocare:</span> <span id="remain-risparmio" class="remaining-positive">€0.00</span></div>
+                <div class="progress-bar-bg"><div id="progress-risparmio" class="progress-bar-fill"></div></div>
+            </div>
         </div>
     </div>
 
-    <script>
-        const defaultCategories = {
-            "Lulù🐾": ["Toelettatura", "Cibo e snack", "Accessori"],
-            "Salute💊": ["Medicine", "Psicologa", "Visite"],
-            "Spesa🛒": [],
-            "Cibo🍕": ["Pranzo lavoro"],
-            "Trasporti🚗": ["Bus", "Benzina", "Assicurazione"],
-            "Bellezza💆🏻‍♀️": ["Unghie", "Prodotti"],
-            "Shopping🛍️": [],
-            "Regali🎁": []
+    <!-- Tabella Storico Operazioni -->
+    <div class="table-container">
+        <h2>Storico Operazioni</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Descrizione</th>
+                    <th>Importo</th>
+                    <th>Tipo</th>
+                    <th>Categoria</th>
+                    <th>Azione</th>
+                </tr>
+            </thead>
+            <tbody id="transaction-list">
+                <!-- Inserimento dinamico JS -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+
+    const form = document.getElementById('transaction-form');
+    const descriptionInput = document.getElementById('description');
+    const amountInput = document.getElementById('amount');
+    const typeInput = document.getElementById('type');
+    const categoryInput = document.getElementById('category');
+    const transactionList = document.getElementById('transaction-list');
+
+    function toggleCategorySelect() {
+        if (typeInput.value === 'entrata') {
+            categoryInput.value = 'nessuna';
+            categoryInput.disabled = true;
+        } else {
+            categoryInput.disabled = false;
+            categoryInput.value = 'necessita';
+        }
+    }
+
+    function saveTransactions() {
+        localStorage.setItem('transactions', JSON.stringify(transactions));
+    }
+
+    function formatCurrency(val) {
+        return '€' + parseFloat(val).toFixed(2);
+    }
+
+    function addTransaction(e) {
+        e.preventDefault();
+
+        const description = descriptionInput.value.trim();
+        const amount = parseFloat(amountInput.value);
+        const type = typeInput.value;
+        const category = type === 'entrata' ? 'nessuna' : categoryInput.value;
+
+        if (description === '' || isNaN(amount) || amount <= 0) return;
+
+        const transaction = {
+            id: Date.now(),
+            description,
+            amount,
+            type,
+            category
         };
 
-        let currentPeriodOffset = 0;
-        let currentType = 'uscita';
-        let categories = {};
-        let movements = [];
-        let chartInstance = null;
+        transactions.push(transaction);
+        saveTransactions();
+        updateUI();
 
-        window.onload = function() {
-            loadCategories();
-            loadMovements();
-            updateCategoryDropdowns();
-            renderAll();
-        };
+        descriptionInput.value = '';
+        amountInput.value = '';
+        typeInput.value = 'entrata';
+        toggleCategorySelect();
+    }
 
-        function loadCategories() {
-            const saved = localStorage.getItem('gestione_stipendio_cats');
-            if (saved) {
-                try {
-                    categories = JSON.parse(saved);
-                } catch(e) {
-                    categories = defaultCategories;
-                    saveCategories();
-                }
+    function deleteTransaction(id) {
+        transactions = transactions.filter(t => t.id !== id);
+        saveTransactions();
+        updateUI();
+    }
+
+    function updateUI() {
+        transactionList.innerHTML = '';
+
+        let totalIncome = 0;
+        let totalExpense = 0;
+
+        let spentNecessita = 0;
+        let spentSvago = 0;
+        let spentRisparmio = 0;
+
+        transactions.forEach(t => {
+            if (t.type === 'entrata') {
+                totalIncome += t.amount;
             } else {
-                categories = defaultCategories;
-                saveCategories();
-            }
-        }
-
-        function saveCategories() {
-            localStorage.setItem('gestione_stipendio_cats', JSON.stringify(categories));
-        }
-
-        function loadMovements() {
-            const saved = localStorage.getItem('gestione_stipendio_movs');
-            if (saved) {
-                try {
-                    movements = JSON.parse(saved);
-                } catch(e) {
-                    movements = [];
-                }
-            } else {
-                movements = [];
-            }
-        }
-
-        function saveMovements() {
-            localStorage.setItem('gestione_stipendio_movs', JSON.stringify(movements));
-        }
-
-        function setType(type) {
-            currentType = type;
-            document.getElementById('tabUscita').classList.toggle('active', type === 'uscita');
-            document.getElementById('tabEntrata').classList.toggle('active', type === 'entrata');
-            updateCategoryDropdowns();
-        }
-
-        function getPeriodDates(offset) {
-            const now = new Date();
-            let day = now.getDate();
-            let month = now.getMonth();
-            let year = now.getFullYear();
-
-            if (day < 10) {
-                month -= 1;
+                totalExpense += t.amount;
+                if (t.category === 'necessita') spentNecessita += t.amount;
+                if (t.category === 'svago') spentSvago += t.amount;
+                if (t.category === 'risparmio') spentRisparmio += t.amount;
             }
 
-            month += offset;
-
-            let startDate = new Date(year, month, 10);
-            let endDate = new Date(year, month + 1, 9, 23, 59, 59);
-
-            return { startDate, endDate };
-        }
-
-        function formatPeriodTitle(offset) {
-            const { startDate, endDate } = getPeriodDates(offset);
-            const options = { day: 'numeric', month: 'short' };
-            const startStr = startDate.toLocaleDateString('it-IT', options);
-            const endStr = endDate.toLocaleDateString('it-IT', options);
+            const row = document.createElement('tr');
             
-            const monthName = endDate.toLocaleDateString('it-IT', { month: 'long', year: 'numeric' });
-            return {
-                title: `${startStr} - ${endStr}`,
-                subtitle: monthName.charAt(0).toUpperCase() + monthName.slice(1)
-            };
+            let categoryLabel = '-';
+            if (t.category === 'necessita') categoryLabel = 'Necessità';
+            if (t.category === 'svago') categoryLabel = 'Svago';
+            if (t.category === 'risparmio') categoryLabel = 'Risparmio';
+
+            row.innerHTML = `
+                <td>${t.description}</td>
+                <td>${formatCurrency(t.amount)}</td>
+                <td class="type-${t.type}">${t.type.toUpperCase()}</td>
+                <td>${categoryLabel}</td>
+                <td><button class="btn-delete" onclick="deleteTransaction(${t.id})">X</button></td>
+            `;
+            transactionList.appendChild(row);
+        });
+
+        const netBalance = totalIncome - totalExpense;
+
+        document.getElementById('total-income').textContent = formatCurrency(totalIncome);
+        document.getElementById('total-expense').textContent = formatCurrency(totalExpense);
+        document.getElementById('net-balance').textContent = formatCurrency(netBalance);
+
+        // Calcolo 50/30/20
+        const budgetNecessita = totalIncome * 0.50;
+        const budgetSvago = totalIncome * 0.30;
+        const budgetRisparmio = totalIncome * 0.20;
+
+        const remainNecessita = budgetNecessita - spentNecessita;
+        const remainSvago = budgetSvago - spentSvago;
+        const remainRisparmio = budgetRisparmio - spentRisparmio;
+
+        // Aggiornamento DOM Sezione Consigli
+        updateAdviceCard('necessita', budgetNecessita, spentNecessita, remainNecessita);
+        updateAdviceCard('svago', budgetSvago, spentSvago, remainSvago);
+        updateAdviceCard('risparmio', budgetRisparmio, spentRisparmio, remainRisparmio);
+    }
+
+    function updateAdviceCard(cat, budget, spent, remain) {
+        document.getElementById(`budget-${cat}`).textContent = formatCurrency(budget);
+        document.getElementById(`spent-${cat}`).textContent = formatCurrency(spent);
+        
+        const remainEl = document.getElementById(`remain-${cat}`);
+        remainEl.textContent = formatCurrency(remain);
+
+        if (remain < 0) {
+            remainEl.className = 'remaining-negative';
+        } else {
+            remainEl.className = 'remaining-positive';
         }
 
-        function changePeriod(delta) {
-            currentPeriodOffset += delta;
-            renderAll();
+        const progressBar = document.getElementById(`progress-${cat}`);
+        let percentage = budget > 0 ? (spent / budget) * 100 : 0;
+        
+        if (percentage > 100) {
+            progressBar.style.width = '100%';
+            progressBar.classList.add('over-budget');
+        } else {
+            progressBar.style.width = percentage + '%';
+            progressBar.classList.remove('over-budget');
         }
+    }
 
-        function populateFilterCategories() {
-            const filterCat = document.getElementById('filterCat');
-            const selected = filterCat.value;
-            filterCat.innerHTML = '<option value="ALL">Tutte le categorie</option>';
+    form.addEventListener('submit', addTransaction);
+    
+    // Inizializzazione allo stato di default
+    toggleCategorySelect();
+    updateUI();
+</script>
 
-            Object.keys(categories).forEach(cat => {
-                let opt = document.createElement('option');
-                opt.value = cat;
-                opt.textContent = cat;
-                filterCat.appendChild(opt);
-            });
-
-            filterCat.value = selected && (selected === 'ALL' || categories[selected]) ? selected : 'ALL';
-            updateFilterSubcategories();
-        }
-
-        function onFilterCatChange() {
-            updateFilterSubcategories();
-            renderAll();
-        }
-
-        function updateFilterSubcategories() {
-            const filterCat = document.getElementById('filterCat').value;
-            const filterSubcat = document.getElementById('filterSubcat');
-            const currentSubVal = filterSubcat.value;
-
-            filterSubcat.innerHTML = '<option value="ALL">Tutte le sottocategorie</option>';
-
-            if (filterCat !== 'ALL' && categories[filterCat]) {
-                categories[filterCat].forEach(sub => {
-                    let opt = document.createElement('option');
-                    opt.value = sub;
-                    opt.textContent = sub;
-                    filterSubcat.appendChild(opt);
-                });
-            }
-
-            if (Array.from(filterSubcat.options).some(o => o.value === currentSubVal)) {
-                filterSubcat.value = currentSubVal;
-            } else {
-                filterSubcat.value = 'ALL';
-            }
-        }
-
-        function updateCategoryDropdowns() {
-            const catSelect = document.getElementById('movCategory');
-            const parentCatSelect = document.getElementById('parentCategorySelect');
-            
-            catSelect.innerHTML = '';
-            parentCatSelect.innerHTML = '';
-
-            Object.keys(categories).forEach(cat => {
-                let opt = document.createElement('option');
-                opt.value = cat;
-                opt.textContent = cat;
-                catSelect.appendChild(opt);
-
-                let optParent = document.createElement('option');
-                optParent.value = cat;
-                optParent.textContent = cat;
-                parentCatSelect.appendChild(optParent);
-            });
-
-            updateSubcategories();
-            renderExistingCategoriesList();
-            populateFilterCategories();
-        }
-
-        function updateSubcategories() {
-            const selectedCat = document.getElementById('movCategory').value;
-            const subSelect = document.getElementById('movSubcategory');
-            subSelect.innerHTML = '';
-
-            if (selectedCat && categories[selectedCat]) {
-                categories[selectedCat].forEach(sub => {
-                    let opt = document.createElement('option');
-                    opt.value = sub;
-                    opt.textContent = sub;
-                    subSelect.appendChild(opt);
-                });
-            }
-        }
-
-        function renderExistingCategoriesList() {
-            const container = document.getElementById('existingCategoriesContainer');
-            container.innerHTML = '';
-
-            Object.keys(categories).forEach(cat => {
-                const catItem = document.createElement('div');
-                catItem.className = 'category-item';
-
-                let subTags = categories[cat].map(sub => `<span class="subcat-tag">${sub}</span>`).join('');
-
-                catItem.innerHTML = `
-                    <div class="category-header">
-                        <span>${cat}</span>
-                        <button class="btn-delete" title="Elimina Categoria" onclick="deleteCategory('${cat.replace(/'/g, "\\'")}')">🗑️</button>
-                    </div>
-                    <div class="subcat-tags">
-                        ${subTags.length > 0 ? subTags : '<span class="subcat-tag" style="background:#eee;">Nessuna sottocategoria</span>'}
-                    </div>
-                `;
-                container.appendChild(catItem);
-            });
-        }
-
-        function addNewCategory(e) {
-            e.preventDefault();
-            const input = document.getElementById('newCatName');
-            const name = input.value.trim();
-            if (name && !categories[name]) {
-                categories[name] = [];
-                saveCategories();
-                input.value = '';
-                updateCategoryDropdowns();
-            }
-        }
-
-        function addNewSubcategory(e) {
-            e.preventDefault();
-            const parent = document.getElementById('parentCategorySelect').value;
-            const input = document.getElementById('newSubCatName');
-            const subName = input.value.trim();
-
-            if (parent && subName && categories[parent]) {
-                if (!categories[parent].includes(subName)) {
-                    categories[parent].push(subName);
-                    saveCategories();
-                    input.value = '';
-                    updateCategoryDropdowns();
-                }
-            }
-        }
-
-        function deleteCategory(catName) {
-            if (confirm(`Vuoi davvero eliminare la categoria "${catName}"?`)) {
-                delete categories[catName];
-                saveCategories();
-                updateCategoryDropdowns();
-            }
-        }
-
-        function addMovement(e) {
-            e.preventDefault();
-            const amount = parseFloat(document.getElementById('movAmount').value);
-            const category = document.getElementById('movCategory').value;
-            const subcategory = document.getElementById('movSubcategory').value || '';
-            const note = document.getElementById('movNote').value.trim();
-
-            if (!amount || amount <= 0) return;
-
-            const movement = {
-                id: Date.now(),
-                type: currentType,
-                amount: amount,
-                category: category,
-                subcategory: subcategory,
-                note: note,
-                date: new Date().toISOString()
-            };
-
-            movements.push(movement);
-            saveMovements();
-
-            document.getElementById('movAmount').value = '';
-            document.getElementById('movNote').value = '';
-
-            renderAll();
-        }
-
-        function deleteMovement(id) {
-            movements = movements.filter(m => m.id !== id);
-            saveMovements();
-            renderAll();
-        }
-
-        function renderAll() {
-            const periodInfo = formatPeriodTitle(currentPeriodOffset);
-            document.getElementById('periodDisplay').textContent = periodInfo.title;
-            document.getElementById('periodSubDisplay').textContent = periodInfo.subtitle;
-
-            const { startDate, endDate } = getPeriodDates(currentPeriodOffset);
-
-            const periodMovements = movements.filter(m => {
-                const mDate = new Date(m.date);
-                return mDate >= startDate && mDate <= endDate;
-            });
-
-            let totEntrate = 0;
-            let totUscite = 0;
-            let catTotals = {};
-
-            periodMovements.forEach(m => {
-                if (m.type === 'entrata') {
-                    totEntrate += m.amount;
-                } else {
-                    totUscite += m.amount;
-                    catTotals[m.category] = (catTotals[m.category] || 0) + m.amount;
-                }
-            });
-
-            const saldo = totEntrate - totUscite;
-
-            document.getElementById('totalEntrate').textContent = `€ ${totEntrate.toFixed(2)}`;
-            document.getElementById('totalUscite').textContent = `€ ${totUscite.toFixed(2)}`;
-            document.getElementById('totalSaldo').textContent = `€ ${saldo.toFixed(2)}`;
-
-            // Aggiornamento ripartizione consigliata (50/30/20)
-            document.getElementById('ruleNeeds').textContent = `€ ${(totEntrate * 0.50).toFixed(2)}`;
-            document.getElementById('ruleWants').textContent = `€ ${(totEntrate * 0.30).toFixed(2)}`;
-            document.getElementById('ruleSavings').textContent = `€ ${(totEntrate * 0.20).toFixed(2)}`;
-
-            const selectedCat = document.getElementById('filterCat').value;
-            const selectedSubcat = document.getElementById('filterSubcat').value;
-
-            const filteredMovements = periodMovements.filter(m => {
-                const catMatch = selectedCat === 'ALL' || m.category === selectedCat;
-                const subcatMatch = selectedSubcat === 'ALL' || m.subcategory === selectedSubcat;
-                return catMatch && subcatMatch;
-            });
-
-            let filterTotalSpese = 0;
-            filteredMovements.forEach(m => {
-                if (m.type === 'uscita') {
-                    filterTotalSpese += m.amount;
-                }
-            });
-
-            let labelText = "Totale Spese (Tutti i movimenti)";
-            if (selectedCat !== 'ALL') {
-                labelText = `Totale: ${selectedCat}`;
-                if (selectedSubcat !== 'ALL') {
-                    labelText += ` › ${selectedSubcat}`;
-                }
-            }
-            
-            document.getElementById('filterSummaryLabel').textContent = labelText;
-            document.getElementById('filterSummaryCount').textContent = `${filteredMovements.length} operazion${filteredMovements.length === 1 ? 'e' : 'i'}`;
-            document.getElementById('filterSummaryAmount').textContent = `€ ${filterTotalSpese.toFixed(2)}`;
-
-            renderMovementsList(filteredMovements);
-            renderChart(catTotals);
-        }
-
-        function renderMovementsList(list) {
-            const container = document.getElementById('movementList');
-            container.innerHTML = '';
-
-            if (list.length === 0) {
-                container.innerHTML = '<div class="empty-msg">Nessun movimento trovato.</div>';
-                return;
-            }
-
-            const sorted = [...list].sort((a,b) => new Date(b.date) - new Date(a.date));
-
-            sorted.forEach(m => {
-                const item = document.createElement('div');
-                item.className = 'movement-item';
-
-                const isEntrata = m.type === 'entrata';
-                const sign = isEntrata ? '+' : '-';
-                const amountClass = isEntrata ? 'amount-entrata' : 'amount-uscita';
-
-                let subText = m.subcategory;
-                if (m.note) {
-                    subText += (subText ? ' • ' : '') + m.note;
-                }
-
-                item.innerHTML = `
-                    <div class="movement-info">
-                        <div class="movement-cat">${m.category}</div>
-                        <div class="movement-sub">${subText || 'Generale'}</div>
-                    </div>
-                    <div style="display:flex; align-items:center;">
-                        <div class="movement-amount ${amountClass}">${sign} € ${m.amount.toFixed(2)}</div>
-                        <button class="btn-delete" data-html2canvas-ignore="true" onclick="deleteMovement(${m.id})">✕</button>
-                    </div>
-                `;
-                container.appendChild(item);
-            });
-        }
-
-        function renderChart(catTotals) {
-            const ctx = document.getElementById('categoryChart').getContext('2d');
-
-            const labels = Object.keys(catTotals);
-            const data = Object.values(catTotals);
-
-            if (chartInstance) {
-                chartInstance.destroy();
-            }
-
-            if (data.length === 0) {
-                ctx.clearRect(0, 0, 300, 300);
-                return;
-            }
-
-            const pinkGreyPalette = [
-                '#d8819d', '#b08ebb', '#9381a4', '#d09bb0', 
-                '#e0a7b8', '#88748a', '#ba899b', '#aaa0ac'
-            ];
-
-            chartInstance = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        data: data,
-                        backgroundColor: pinkGreyPalette.slice(0, labels.length),
-                        borderWidth: 2,
-                        borderColor: '#ffffff'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                font: { size: 12, weight: '600' },
-                                boxWidth: 12,
-                                padding: 10,
-                                generateLabels: function(chart) {
-                                    const data = chart.data;
-                                    if (data.labels.length && data.datasets.length) {
-                                        return data.labels.map(function(label, i) {
-                                            const meta = chart.getDatasetMeta(0);
-                                            const style = meta.controller.getStyle(i);
-                                            const val = data.datasets[0].data[i];
-                                            return {
-                                                text: `${label}: € ${val.toFixed(2)}`,
-                                                fillStyle: style.backgroundColor,
-                                                strokeStyle: style.borderColor,
-                                                lineWidth: style.borderWidth,
-                                                hidden: !chart.isDatasetVisible(0) || meta.data[i].hidden,
-                                                index: i
-                                            };
-                                        });
-                                    }
-                                    return [];
-                                }
-                            }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.label || '';
-                                    if (label) {
-                                        label += ': ';
-                                    }
-                                    if (context.parsed !== null) {
-                                        label += '€ ' + context.parsed.toFixed(2);
-                                    }
-                                    return label;
-                                }
-                            }
-                        }
-                    },
-                    cutout: '65%'
-                }
-            });
-        }
-
-        function exportPDF() {
-            const element = document.getElementById('exportArea');
-            const subTitle = document.getElementById('periodSubDisplay').textContent;
-            
-            const opt = {
-                margin:       10,
-                filename:     `Resoconto_${subTitle.replace(/\s+/g, '_')}.pdf`,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-
-            html2pdf().set(opt).from(element).save();
-        }
-    </script>
 </body>
 </html>
