@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
     <title>Gestione Stipendio</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Libreria per la generazione del PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         :root {
@@ -290,7 +289,6 @@
             padding: 8px 10px;
         }
 
-        /* Dynamic Filter Summary Box */
         .filter-summary-card {
             background: var(--primary-light);
             border: 1px dashed var(--primary);
@@ -423,12 +421,10 @@
 <body>
 
     <div id="exportArea">
-        <!-- Header -->
         <div class="header">
             <h1>🌸 Gestione <span>Stipendio</span></h1>
         </div>
 
-        <!-- Period Card -->
         <div class="card">
             <div class="period-nav">
                 <button class="btn-nav" data-html2canvas-ignore="true" onclick="changePeriod(-1)">❮ Prec</button>
@@ -440,7 +436,6 @@
             </div>
         </div>
 
-        <!-- Stats Grid -->
         <div class="stats-grid">
             <div class="stat-card entrate">
                 <div class="stat-label">Entrate</div>
@@ -456,7 +451,6 @@
             </div>
         </div>
 
-        <!-- Chart -->
         <div class="card">
             <div class="section-title">
                 <span>📈 Uscite per Categoria</span>
@@ -467,11 +461,9 @@
             </div>
         </div>
 
-        <!-- Movement List -->
         <div class="card">
             <div class="section-title">📋 Movimenti del Mese</div>
             
-            <!-- Filter Options -->
             <div class="filter-box" data-html2canvas-ignore="true">
                 <div>
                     <select class="form-control" id="filterCat" onchange="onFilterCatChange()">
@@ -485,7 +477,6 @@
                 </div>
             </div>
 
-            <!-- Dynamic Filter Total Display -->
             <div class="filter-summary-card" id="filterSummaryCard">
                 <div>
                     <div class="filter-summary-info" id="filterSummaryLabel">Totale Selezionato</div>
@@ -498,7 +489,6 @@
         </div>
     </div>
 
-    <!-- Add Movement Form -->
     <div class="card">
         <div class="section-title">➕ Nuova Operazione</div>
         
@@ -534,7 +524,6 @@
         </form>
     </div>
 
-    <!-- Category & Subcategory Management -->
     <div class="card">
         <div class="section-title">🏷️ Categorie & Sottocategorie</div>
         
@@ -555,7 +544,6 @@
             <button type="submit" class="btn-submit" style="background: #8b718f; padding: 10px;">+ Sottocategoria</button>
         </form>
 
-        <!-- Existing Categories List -->
         <div class="category-list-box">
             <div class="section-title" style="font-size: 13px; margin-top: 4px;">📂 Categorie Presenti</div>
             <div id="existingCategoriesContainer"></div>
@@ -590,7 +578,12 @@
         function loadCategories() {
             const saved = localStorage.getItem('gestione_stipendio_cats');
             if (saved) {
-                categories = JSON.parse(saved);
+                try {
+                    categories = JSON.parse(saved);
+                } catch(e) {
+                    categories = defaultCategories;
+                    saveCategories();
+                }
             } else {
                 categories = defaultCategories;
                 saveCategories();
@@ -604,7 +597,11 @@
         function loadMovements() {
             const saved = localStorage.getItem('gestione_stipendio_movs');
             if (saved) {
-                movements = JSON.parse(saved);
+                try {
+                    movements = JSON.parse(saved);
+                } catch(e) {
+                    movements = [];
+                }
             } else {
                 movements = [];
             }
@@ -864,7 +861,6 @@
             document.getElementById('totalUscite').textContent = `€ ${totUscite.toFixed(2)}`;
             document.getElementById('totalSaldo').textContent = `€ ${saldo.toFixed(2)}`;
 
-            // Filtra per la lista
             const selectedCat = document.getElementById('filterCat').value;
             const selectedSubcat = document.getElementById('filterSubcat').value;
 
@@ -874,7 +870,6 @@
                 return catMatch && subcatMatch;
             });
 
-            // Calcolo totale dinamico per il filtro selezionato
             let filterTotalSpese = 0;
             filteredMovements.forEach(m => {
                 if (m.type === 'uscita') {
@@ -882,7 +877,6 @@
                 }
             });
 
-            // Aggiorna l'etichetta del riepilogo del filtro
             let labelText = "Totale Spese (Tutti i movimenti)";
             if (selectedCat !== 'ALL') {
                 labelText = `Totale: ${selectedCat}`;
@@ -1019,7 +1013,6 @@
             });
         }
 
-        // Funzione Esportazione PDF
         function exportPDF() {
             const element = document.getElementById('exportArea');
             const subTitle = document.getElementById('periodSubDisplay').textContent;
