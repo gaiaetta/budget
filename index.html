@@ -628,3 +628,537 @@
             <div id="existingCategoriesContainer"></div>
         </div>
     </div>
+    <script>
+        const defaultCategories = {
+            "Lulù🐾": ["Toelettatura", "Cibo e snack", "Accessori"],
+            "Salute💊": ["Medicine", "Psicologa", "Visite"],
+            "Spesa🛒": [],
+            "Cibo🍕": ["Pranzo lavoro"],
+            "Trasporti🚗": ["Bus", "Benzina", "Assicurazione"],
+            "Bellezza💆🏻‍♀️": ["Unghie", "Prodotti"],
+            "Shopping🛍️": [],
+            "Regali🎁": []
+        };
+
+        let currentPeriodOffset = 0;
+        let currentType = 'uscita';
+        let categories = {};
+        let movements = [];
+        let chartInstance = null;
+
+        window.onload = function() {
+            loadCategories();
+            loadMovements();
+            updateCategoryDropdowns();
+            renderAll();
+        };
+
+        function loadCategories() {
+            const saved = localStorage.getItem('gestione_stipendio_cats');
+            if (saved) {
+                try {
+                    categories = JSON.parse(saved);
+                } catch(e) {
+                    categories = defaultCategories;
+                    saveCategories();
+                }
+            } else {
+                categories = defaultCategories;
+                saveCategories();
+            }
+        }
+
+        function saveCategories() {
+            localStorage.setItem('gestione_stipendio_cats', JSON.stringify(categories));
+        }
+
+        function loadMovements() {
+            const saved = localStorage.getItem('gestione_stipendio_movs');
+            if (saved) {
+                try {
+                    movements = JSON.parse(saved);
+                } catch(e) {
+                    movements = [];
+                }
+            } else {
+                movements = [];
+            }
+        }
+
+        function saveMovements() {
+            localStorage.setItem('gestione_stipendio_movs', JSON.stringify(movements));
+        }
+
+        function setType(type) {
+            currentType = type;
+            document.getElementById('tabUscita').classList.toggle('active', type === 'uscita');
+            document.getElementById('tabEntrata').classList.toggle('active', type === 'entrata');
+            
+            const bucketGroup = document.getElementById('budgetBucketGroup');
+            if (bucketGroup) {
+                bucketGroup.style.display = type === 'uscita' ? 'block' : 'none';
+            }
+            
+            updateCategoryDropdowns();
+        }
+
+        function getPeriodDates(offset) {
+            const now = new Date();
+            let day = now.getDate();
+            let month = now.getMonth();
+            let year = now.getFullYear();
+
+            if (day < 10) {
+                month -= 1;
+            }
+
+            month += offset;
+
+            let startDate = new Date(year, month, 10);
+            let endDate = new Date(year, month + 1, 9, 23, 59, 59);
+
+            return { startDate, endDate };
+        }
+
+        function formatPeriodTitle(offset) {
+            const { startDate, endDate } = getPeriodDates(offset);
+            const options = { day: 'numeric', month: 'short' };
+            const startStr = startDate.toLocaleDateString('it-IT', options);
+            const endStr = endDate.toLocaleDateString('it-IT', options);
+            
+            const monthName = endDate.toLocaleDateString('it-IT', { month: 'long', year: 'numeric' });
+            return {
+                title: `${startStr} - ${endStr}`,
+                subtitle: monthName.charAt(0).toUpperCase() + monthName.slice(1)
+            };
+        }
+
+        function changePeriod(delta) {
+            currentPeriodOffset += delta;
+            renderAll();
+        }
+
+        function populateFilterCategories() {
+            const filterCat = document.getElementById('filterCat');
+            const selected = filterCat.value;
+            filterCat.innerHTML = '<option value="ALL">Tutte le categorie</option>';
+
+            Object.keys(categories).forEach(cat => {
+                let opt = document.createElement('option');
+                opt.value = cat;
+                opt.textContent = cat;
+                filterCat.appendChild(opt);
+            });
+
+            filterCat.value = selected && (selected === 'ALL' || categories[selected]) ? selected : 'ALL';
+            updateFilterSubcategories();
+        }
+
+        function onFilterCatChange() {
+            updateFilterSubcategories();
+            renderAll();
+        }
+
+        function updateFilterSubcategories() {
+            const filterCat = document.getElementById('filterCat').value;
+            const filterSubcat = document.getElementById('filterSubcat');
+            const currentSubVal = filterSubcat.value;
+
+            filterSubcat.innerHTML = '<option value="ALL">Tutte le sottocategorie</option>';
+
+            if (filterCat !== 'ALL' && categories[filterCat]) {
+                categories[filterCat].forEach(sub => {
+                    let opt = document.createElement('option');
+                    opt.value = sub;
+                    opt.textContent = sub;
+                    filterSubcat.appendChild(opt);
+                });
+            }
+
+            if (Array.from(filterSubcat.options).some(o => o.value === currentSubVal)) {
+                filterSubcat.value = currentSubVal;
+            } else {
+                filterSubcat.value = 'ALL';
+            }
+        }
+
+        function updateCategoryDropdowns() {
+            const catSelect = document.getElementById('movCategory');
+            const parentCatSelect = document.getElementById('parentCategorySelect');
+            
+            catSelect.innerHTML = '';
+            parentCatSelect.innerHTML = '';
+
+            Object.keys(categories).forEach(cat => {
+                let opt = document.createElement('option');
+                opt.value = cat;
+                opt.textContent = cat;
+                catSelect.appendChild(opt);
+
+                let optParent = document.createElement('option');
+                optParent.value = cat;
+                optParent.textContent = cat;
+                parentCatSelect.appendChild(optParent);
+            });
+
+            updateSubcategories();
+            renderExistingCategoriesList();
+            populateFilterCategories();
+        }
+
+        function updateSubcategories() {
+            const selectedCat = document.getElementById('movCategory').value;
+            const subSelect = document.getElementById('movSubcategory');
+            subSelect.innerHTML = '';
+
+            if (selectedCat && categories[selectedCat]) {
+                categories[selectedCat].forEach(sub => {
+                    let opt = document.createElement('option');
+                    opt.value = sub;
+                    opt.textContent = sub;
+                    subSelect.appendChild(opt);
+                });
+            }
+        }
+
+        function renderExistingCategoriesList() {
+            const container = document.getElementById('existingCategoriesContainer');
+            container.innerHTML = '';
+
+            Object.keys(categories).forEach(cat => {
+                const catItem = document.createElement('div');
+                catItem.className = 'category-item';
+
+                let subTags = categories[cat].map(sub => `<span class="subcat-tag">${sub}</span>`).join('');
+
+                catItem.innerHTML = `
+                    <div class="category-header">
+                        <span>${cat}</span>
+                        <button class="btn-delete" title="Elimina Categoria" onclick="deleteCategory('${cat.replace(/'/g, "\\'")}')">🗑️</button>
+                    </div>
+                    <div class="subcat-tags">
+                        ${subTags.length > 0 ? subTags : '<span class="subcat-tag" style="background:#eee;">Nessuna sottocategoria</span>'}
+                    </div>
+                `;
+                container.appendChild(catItem);
+            });
+        }
+
+        function addNewCategory(e) {
+            e.preventDefault();
+            const input = document.getElementById('newCatName');
+            const name = input.value.trim();
+            if (name && !categories[name]) {
+                categories[name] = [];
+                saveCategories();
+                input.value = '';
+                updateCategoryDropdowns();
+            }
+        }
+
+        function addNewSubcategory(e) {
+            e.preventDefault();
+            const parent = document.getElementById('parentCategorySelect').value;
+            const input = document.getElementById('newSubCatName');
+            const subName = input.value.trim();
+
+            if (parent && subName && categories[parent]) {
+                if (!categories[parent].includes(subName)) {
+                    categories[parent].push(subName);
+                    saveCategories();
+                    input.value = '';
+                    updateCategoryDropdowns();
+                }
+            }
+        }
+
+        function deleteCategory(catName) {
+            if (confirm(`Vuoi davvero eliminare la categoria "${catName}"?`)) {
+                delete categories[catName];
+                saveCategories();
+                updateCategoryDropdowns();
+            }
+        }
+
+        function addMovement(e) {
+            e.preventDefault();
+            const amount = parseFloat(document.getElementById('movAmount').value);
+            const category = document.getElementById('movCategory').value;
+            const subcategory = document.getElementById('movSubcategory').value || '';
+            const note = document.getElementById('movNote').value.trim();
+            const bucket = currentType === 'uscita' ? document.getElementById('movBucket').value : 'nessuno';
+
+            if (!amount || amount <= 0) return;
+
+            const movement = {
+                id: Date.now(),
+                type: currentType,
+                amount: amount,
+                category: category,
+                subcategory: subcategory,
+                note: note,
+                bucket: bucket,
+                date: new Date().toISOString()
+            };
+
+            movements.push(movement);
+            saveMovements();
+
+            document.getElementById('movAmount').value = '';
+            document.getElementById('movNote').value = '';
+
+            renderAll();
+        }
+
+        function deleteMovement(id) {
+            movements = movements.filter(m => m.id !== id);
+            saveMovements();
+            renderAll();
+        }
+
+        function renderAll() {
+            const periodInfo = formatPeriodTitle(currentPeriodOffset);
+            document.getElementById('periodDisplay').textContent = periodInfo.title;
+            document.getElementById('periodSubDisplay').textContent = periodInfo.subtitle;
+
+            const { startDate, endDate } = getPeriodDates(currentPeriodOffset);
+
+            const periodMovements = movements.filter(m => {
+                const mDate = new Date(m.date);
+                return mDate >= startDate && mDate <= endDate;
+            });
+
+            let totEntrate = 0;
+            let totUscite = 0;
+            let catTotals = {};
+
+            let spentNeeds = 0;
+            let spentWants = 0;
+            let spentSavings = 0;
+
+            periodMovements.forEach(m => {
+                if (m.type === 'entrata') {
+                    totEntrate += m.amount;
+                } else {
+                    totUscite += m.amount;
+                    catTotals[m.category] = (catTotals[m.category] || 0) + m.amount;
+
+                    if (m.bucket === 'necessita') spentNeeds += m.amount;
+                    else if (m.bucket === 'svago') spentWants += m.amount;
+                    else if (m.bucket === 'risparmio') spentSavings += m.amount;
+                }
+            });
+
+            const saldo = totEntrate - totUscite;
+
+            document.getElementById('totalEntrate').textContent = `€ ${totEntrate.toFixed(2)}`;
+            document.getElementById('totalUscite').textContent = `€ ${totUscite.toFixed(2)}`;
+            document.getElementById('totalSaldo').textContent = `€ ${saldo.toFixed(2)}`;
+
+            const maxNeeds = totEntrate * 0.50;
+            const maxWants = totEntrate * 0.30;
+            const maxSavings = totEntrate * 0.20;
+
+            const remNeedsVal = maxNeeds - spentNeeds;
+            const remWantsVal = maxWants - spentWants;
+            const remSavingsVal = maxSavings - spentSavings;
+
+            document.getElementById('ruleNeeds').textContent = `€ ${maxNeeds.toFixed(2)}`;
+            document.getElementById('spentNeeds').textContent = `€ ${spentNeeds.toFixed(2)}`;
+            updateRemDisplay('remNeeds', remNeedsVal);
+
+            document.getElementById('ruleWants').textContent = `€ ${maxWants.toFixed(2)}`;
+            document.getElementById('spentWants').textContent = `€ ${spentWants.toFixed(2)}`;
+            updateRemDisplay('remWants', remWantsVal);
+
+            document.getElementById('ruleSavings').textContent = `€ ${maxSavings.toFixed(2)}`;
+            document.getElementById('spentSavings').textContent = `€ ${spentSavings.toFixed(2)}`;
+            updateRemDisplay('remSavings', remSavingsVal);
+
+            const selectedCat = document.getElementById('filterCat').value;
+            const selectedSubcat = document.getElementById('filterSubcat').value;
+
+            const filteredMovements = periodMovements.filter(m => {
+                const catMatch = selectedCat === 'ALL' || m.category === selectedCat;
+                const subcatMatch = selectedSubcat === 'ALL' || m.subcategory === selectedSubcat;
+                return catMatch && subcatMatch;
+            });
+
+            let filterTotalSpese = 0;
+            filteredMovements.forEach(m => {
+                if (m.type === 'uscita') {
+                    filterTotalSpese += m.amount;
+                }
+            });
+
+            let labelText = "Totale Spese (Tutti i movimenti)";
+            if (selectedCat !== 'ALL') {
+                labelText = `Totale: ${selectedCat}`;
+                if (selectedSubcat !== 'ALL') {
+                    labelText += ` › ${selectedSubcat}`;
+                }
+            }
+            
+            document.getElementById('filterSummaryLabel').textContent = labelText;
+            document.getElementById('filterSummaryCount').textContent = `${filteredMovements.length} operazion${filteredMovements.length === 1 ? 'e' : 'i'}`;
+            document.getElementById('filterSummaryAmount').textContent = `€ ${filterTotalSpese.toFixed(2)}`;
+
+            renderMovementsList(filteredMovements);
+            renderChart(catTotals);
+        }
+
+        function updateRemDisplay(elemId, remVal) {
+            const el = document.getElementById(elemId);
+            if (remVal < 0) {
+                el.className = 'rule-rem rem-negative';
+                el.textContent = `Sforato: € ${Math.abs(remVal).toFixed(2)}`;
+            } else {
+                el.className = 'rule-rem rem-positive';
+                el.textContent = `Ancora: € ${remVal.toFixed(2)}`;
+            }
+        }
+
+        function renderMovementsList(list) {
+            const container = document.getElementById('movementList');
+            container.innerHTML = '';
+
+            if (list.length === 0) {
+                container.innerHTML = '<div class="empty-msg">Nessun movimento trovato.</div>';
+                return;
+            }
+
+            const sorted = [...list].sort((a,b) => new Date(b.date) - new Date(a.date));
+
+            sorted.forEach(m => {
+                const item = document.createElement('div');
+                item.className = 'movement-item';
+
+                const isEntrata = m.type === 'entrata';
+                const sign = isEntrata ? '+' : '-';
+                const amountClass = isEntrata ? 'amount-entrata' : 'amount-uscita';
+
+                let bucketTag = '';
+                if (m.type === 'uscita' && m.bucket) {
+                    if (m.bucket === 'necessita') bucketTag = ' [Necessità]';
+                    else if (m.bucket === 'svago') bucketTag = ' [Svago]';
+                    else if (m.bucket === 'risparmio') bucketTag = ' [Risparmio]';
+                }
+
+                let subText = (m.subcategory || '') + bucketTag;
+                if (m.note) {
+                    subText += (subText ? ' • ' : '') + m.note;
+                }
+
+                item.innerHTML = `
+                    <div class="movement-info">
+                        <div class="movement-cat">${m.category}</div>
+                        <div class="movement-sub">${subText || 'Generale'}</div>
+                    </div>
+                    <div style="display:flex; align-items:center;">
+                        <div class="movement-amount ${amountClass}">${sign} € ${m.amount.toFixed(2)}</div>
+                        <button class="btn-delete" data-html2canvas-ignore="true" onclick="deleteMovement(${m.id})">✕</button>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function renderChart(catTotals) {
+            const ctx = document.getElementById('categoryChart').getContext('2d');
+
+            const labels = Object.keys(catTotals);
+            const data = Object.values(catTotals);
+
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+
+            if (data.length === 0) {
+                ctx.clearRect(0, 0, 300, 300);
+                return;
+            }
+
+            const pinkGreyPalette = [
+                '#d8819d', '#b08ebb', '#9381a4', '#d09bb0', 
+                '#e0a7b8', '#88748a', '#ba899b', '#aaa0ac'
+            ];
+
+            chartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: pinkGreyPalette.slice(0, labels.length),
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                font: { size: 12, weight: '600' },
+                                boxWidth: 12,
+                                padding: 10,
+                                generateLabels: function(chart) {
+                                    const data = chart.data;
+                                    if (data.labels.length && data.datasets.length) {
+                                        return data.labels.map(function(label, i) {
+                                            const meta = chart.getDatasetMeta(0);
+                                            const style = meta.controller.getStyle(i);
+                                            const val = data.datasets[0].data[i];
+                                            return {
+                                                text: `${label}: € ${val.toFixed(2)}`,
+                                                fillStyle: style.backgroundColor,
+                                                strokeStyle: style.borderColor,
+                                                lineWidth: style.borderWidth,
+                                                hidden: !chart.isDatasetVisible(0) || meta.data[i].hidden,
+                                                index: i
+                                            };
+                                        });
+                                    }
+                                    return [];
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed !== null) {
+                                        label += '€ ' + context.parsed.toFixed(2);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    cutout: '65%'
+                }
+            });
+        }
+
+        function exportPDF() {
+            const element = document.getElementById('exportArea');
+            const subTitle = document.getElementById('periodSubDisplay').textContent;
+            
+            const opt = {
+                margin:       10,
+                filename:     `Resoconto_${subTitle.replace(/\s+/g, '_')}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(element).save();
+        }
+    </script>
+</body>
+</html>
