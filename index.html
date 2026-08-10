@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
     <title>Gestione Stipendio</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -18,6 +18,7 @@
             --border-color: #eee6ec;
             --accent-green: #68b087;
             --accent-red: #e06d7d;
+            --accent-purple: #9b72cf;
             --shadow: 0 4px 15px rgba(180, 140, 160, 0.08);
             --radius: 16px;
         }
@@ -26,7 +27,7 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             -webkit-tap-highlight-color: transparent;
         }
 
@@ -37,8 +38,11 @@
             max-width: 500px;
             margin: 0 auto;
             padding-bottom: 40px;
+            touch-action: manipulation;
+            -webkit-text-size-adjust: 100%;
         }
 
+        /* Header */
         .header {
             display: flex;
             align-items: center;
@@ -51,12 +55,16 @@
             font-size: 22px;
             font-weight: 700;
             color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .header h1 span {
             color: var(--primary);
         }
 
+        /* Period Selector Card */
         .card {
             background: var(--card-bg);
             border-radius: var(--radius);
@@ -82,12 +90,20 @@
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-nav:active {
+            transform: scale(0.96);
+            background: var(--primary);
+            color: white;
         }
 
         .period-title {
             text-align: center;
             font-size: 14px;
             font-weight: 600;
+            color: var(--text-dark);
         }
 
         .period-subtitle {
@@ -97,6 +113,7 @@
             margin-top: 2px;
         }
 
+        /* Summary Stats */
         .stats-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -114,11 +131,17 @@
             overflow: hidden;
         }
 
-        .stat-card.full { grid-column: span 2; }
+        .stat-card.full {
+            grid-column: span 2;
+        }
+
         .stat-card::before {
             content: '';
             position: absolute;
-            left: 0; top: 0; bottom: 0; width: 4px;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
         }
 
         .stat-card.entrate::before { background-color: var(--accent-green); }
@@ -135,66 +158,10 @@
         .stat-value {
             font-size: 20px;
             font-weight: 700;
-        }
-
-        /* --- STILI CONSIGLIO BUDGET 50/30/20 --- */
-        .advice-box {
-            background: #faf5f8;
-            border: 1px dashed var(--primary);
-            border-radius: 12px;
-            padding: 14px;
-            margin-top: 10px;
-        }
-
-        .advice-title {
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--primary-hover);
-            margin-bottom: 8px;
-        }
-
-        .rule-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            margin-bottom: 10px;
-        }
-
-        .rule-item {
-            background: white;
-            padding: 10px 8px;
-            border-radius: 10px;
-            text-align: center;
-            border: 1px solid var(--border-color);
-        }
-
-        .rule-pct {
-            font-size: 14px;
-            font-weight: 800;
-            color: var(--primary);
-        }
-
-        .rule-label {
-            font-size: 11px;
-            font-weight: 600;
             color: var(--text-dark);
-            margin-top: 2px;
         }
 
-        .rule-amount {
-            font-size: 11px;
-            color: var(--text-muted);
-            margin-top: 2px;
-            font-weight: 500;
-        }
-
-        .advice-desc {
-            font-size: 11px;
-            color: var(--text-muted);
-            line-height: 1.4;
-        }
-
-        /* --- CHART & LISTA MOVIMENTI --- */
+        /* Chart & Budget */
         .chart-container {
             position: relative;
             min-height: 250px;
@@ -209,6 +176,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            color: var(--text-dark);
         }
 
         .btn-pdf {
@@ -220,8 +188,63 @@
             font-size: 12px;
             font-weight: 600;
             cursor: pointer;
+            transition: all 0.2s;
         }
 
+        .btn-pdf:active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Budget Rule / Advisor Section */
+        .budget-rule-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .rule-card {
+            background: #faf7f9;
+            border-radius: 12px;
+            padding: 10px 8px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .rule-card.needs { border-top: 3px solid var(--primary); }
+        .rule-card.wants { border-top: 3px solid var(--accent-purple); }
+        .rule-card.savings { border-top: 3px solid var(--accent-green); }
+
+        .rule-percent {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 2px;
+        }
+
+        .rule-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 4px;
+        }
+
+        .rule-amount {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--text-dark);
+        }
+
+        .rule-note {
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-top: 4px;
+            line-height: 1.2;
+        }
+
+        /* Forms & Tabs */
         .tab-buttons {
             display: flex;
             background: #ede6eb;
@@ -240,6 +263,7 @@
             background: transparent;
             color: var(--text-muted);
             cursor: pointer;
+            transition: all 0.2s;
         }
 
         .tab-btn.active {
@@ -268,6 +292,13 @@
             font-size: 16px;
             outline: none;
             background: #faf7f9;
+            color: var(--text-dark);
+            transition: border 0.2s;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            background: #fff;
         }
 
         .btn-submit {
@@ -280,9 +311,17 @@
             font-size: 15px;
             font-weight: 700;
             cursor: pointer;
+            margin-top: 6px;
             box-shadow: 0 4px 12px rgba(216, 129, 157, 0.3);
+            transition: background 0.2s;
         }
 
+        .btn-submit:active {
+            background: var(--primary-hover);
+            transform: scale(0.99);
+        }
+
+        /* Movement List & Filters */
         .filter-box {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -292,6 +331,11 @@
             padding: 10px;
             border-radius: 12px;
             border: 1px solid var(--border-color);
+        }
+
+        .filter-box select {
+            font-size: 13px;
+            padding: 8px 10px;
         }
 
         .filter-summary-card {
@@ -305,6 +349,24 @@
             justify-content: space-between;
         }
 
+        .filter-summary-info {
+            font-size: 12px;
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+
+        .filter-summary-sub {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .filter-summary-total {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--accent-red);
+        }
+
         .movement-item {
             display: flex;
             align-items: center;
@@ -313,9 +375,33 @@
             border-bottom: 1px solid var(--border-color);
         }
 
-        .movement-cat { font-size: 14px; font-weight: 600; }
-        .movement-sub { font-size: 12px; color: var(--text-muted); }
-        .movement-amount { font-size: 15px; font-weight: 700; }
+        .movement-item:last-child {
+            border-bottom: none;
+        }
+
+        .movement-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .movement-cat {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .movement-sub {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .movement-amount {
+            font-size: 15px;
+            font-weight: 700;
+            text-align: right;
+        }
+
         .amount-entrata { color: var(--accent-green); }
         .amount-uscita { color: var(--accent-red); }
 
@@ -326,6 +412,58 @@
             font-size: 16px;
             margin-left: 10px;
             cursor: pointer;
+            padding: 4px;
+        }
+
+        .btn-delete:hover {
+            color: var(--accent-red);
+        }
+
+        /* Category Manager List */
+        .category-list-box {
+            margin-top: 14px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 12px;
+        }
+
+        .category-item {
+            background: #faf7f9;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text-dark);
+        }
+
+        .subcat-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 6px;
+        }
+
+        .subcat-tag {
+            background: #ede6eb;
+            color: var(--text-dark);
+            font-size: 11px;
+            font-weight: 500;
+            padding: 3px 8px;
+            border-radius: 8px;
+        }
+
+        .empty-msg {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 13px;
+            padding: 20px 0;
         }
     </style>
 </head>
@@ -362,32 +500,32 @@
             </div>
         </div>
 
-        <!-- SEZIONE CONSIGLIO BUDGET -->
+        <!-- Suggerimento Ripartizione Stipendio (Regola 50/30/20) -->
         <div class="card">
-            <div class="section-title">💡 Consiglio Budget (Regola 50/30/20)</div>
-            <div class="advice-box">
-                <div class="advice-title">📌 Ripartizione consigliata basata sulle Entrate</div>
-                <div class="rule-grid">
-                    <div class="rule-item">
-                        <div class="rule-pct">50%</div>
-                        <div class="rule-label">Necessità</div>
-                        <div class="rule-amount" id="adviceNeeds">€ 0.00</div>
-                    </div>
-                    <div class="rule-item">
-                        <div class="rule-pct">30%</div>
-                        <div class="rule-label">Desideri</div>
-                        <div class="rule-amount" id="adviceWants">€ 0.00</div>
-                    </div>
-                    <div class="rule-item">
-                        <div class="rule-pct">20%</div>
-                        <div class="rule-label">Risparmi</div>
-                        <div class="rule-amount" id="adviceSavings">€ 0.00</div>
-                    </div>
+            <div class="section-title">
+                <span>💡 Consiglio Ripartizione (50/30/20)</span>
+            </div>
+            <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">
+                Calcolato automaticamente sulle entrate del mese selezionato:
+            </p>
+            <div class="budget-rule-grid">
+                <div class="rule-card needs">
+                    <div class="rule-percent">50%</div>
+                    <div class="rule-title">Necessità</div>
+                    <div class="rule-amount" id="ruleNeeds">€ 0.00</div>
+                    <div class="rule-note">Spesa, bollette, salute, trasporti</div>
                 </div>
-                <div class="advice-desc">
-                    • <b>50% Necessità:</b> Spesa, salute, trasporti, bollette e spese fisse.<br>
-                    • <b>30% Svaghi/Desideri:</b> Shopping, uscite, bellezza, regali e tempo libero.<br>
-                    • <b>20% Risparmi & Fondo Emergenze:</b> Accantonamento per progetti futuri e imprevisti.
+                <div class="rule-card wants">
+                    <div class="rule-percent">30%</div>
+                    <div class="rule-title">Svago</div>
+                    <div class="rule-amount" id="ruleWants">€ 0.00</div>
+                    <div class="rule-note">Shopping, uscite, tempo libero</div>
+                </div>
+                <div class="rule-card savings">
+                    <div class="rule-percent">20%</div>
+                    <div class="rule-title">Risparmi</div>
+                    <div class="rule-amount" id="ruleSavings">€ 0.00</div>
+                    <div class="rule-note">Fondo d'emergenza, obiettivi</div>
                 </div>
             </div>
         </div>
@@ -423,7 +561,7 @@
                     <div class="filter-summary-info" id="filterSummaryLabel">Totale Selezionato</div>
                     <div class="filter-summary-sub" id="filterSummaryCount">0 operazioni</div>
                 </div>
-                <div class="filter-summary-total" id="filterSummaryAmount" style="color:var(--accent-red); font-weight:800;">€ 0.00</div>
+                <div class="filter-summary-total" id="filterSummaryAmount">€ 0.00</div>
             </div>
 
             <div id="movementList"></div>
@@ -432,29 +570,63 @@
 
     <div class="card">
         <div class="section-title">➕ Nuova Operazione</div>
+        
         <div class="tab-buttons">
             <button class="tab-btn active" id="tabUscita" onclick="setType('uscita')">Uscita</button>
             <button class="tab-btn" id="tabEntrata" onclick="setType('entrata')">Entrata</button>
         </div>
+
         <form onsubmit="addMovement(event)">
             <div class="form-group">
                 <label>Importo (€)</label>
                 <input type="number" step="0.01" class="form-control" id="movAmount" placeholder="0.00" required>
             </div>
+
             <div class="form-group">
                 <label>Categoria</label>
-                <select class="form-control" id="movCategory" onchange="updateSubcategories()" required></select>
+                <select class="form-control" id="movCategory" onchange="updateSubcategories()" required>
+                </select>
             </div>
+
             <div class="form-group">
                 <label>Sottocategoria</label>
-                <select class="form-control" id="movSubcategory"></select>
+                <select class="form-control" id="movSubcategory">
+                </select>
             </div>
+
             <div class="form-group">
                 <label>Note / Descrizione (opzionale)</label>
-                <input type="text" class="form-control" id="movNote" placeholder="Es. Spesa conad...">
+                <input type="text" class="form-control" id="movNote" placeholder="Es. Spesa conad, Benzina...">
             </div>
+
             <button type="submit" class="btn-submit">Salva Operazione</button>
         </form>
+    </div>
+
+    <div class="card">
+        <div class="section-title">🏷️ Categorie & Sottocategorie</div>
+        
+        <form onsubmit="addNewCategory(event)" style="margin-bottom: 12px;">
+            <div class="form-group">
+                <label>Aggiungi Nuova Categoria (con Emoji)</label>
+                <input type="text" class="form-control" id="newCatName" placeholder="Es. 🐶 Lulù oppure 🚗 Auto" required>
+            </div>
+            <button type="submit" class="btn-submit" style="background: #9a809e; padding: 10px;">+ Categoria</button>
+        </form>
+
+        <form onsubmit="addNewSubcategory(event)">
+            <div class="form-group">
+                <label>Aggiungi Sottocategoria a Categoria Esistente</label>
+                <select class="form-control" id="parentCategorySelect" style="margin-bottom: 6px;"></select>
+                <input type="text" class="form-control" id="newSubCatName" placeholder="Es. Veterinario, Cibo, Palestra..." required>
+            </div>
+            <button type="submit" class="btn-submit" style="background: #8b718f; padding: 10px;">+ Sottocategoria</button>
+        </form>
+
+        <div class="category-list-box">
+            <div class="section-title" style="font-size: 13px; margin-top: 4px;">📂 Categorie Presenti</div>
+            <div id="existingCategoriesContainer"></div>
+        </div>
     </div>
 
     <script>
@@ -484,12 +656,34 @@
 
         function loadCategories() {
             const saved = localStorage.getItem('gestione_stipendio_cats');
-            categories = saved ? JSON.parse(saved) : defaultCategories;
+            if (saved) {
+                try {
+                    categories = JSON.parse(saved);
+                } catch(e) {
+                    categories = defaultCategories;
+                    saveCategories();
+                }
+            } else {
+                categories = defaultCategories;
+                saveCategories();
+            }
+        }
+
+        function saveCategories() {
+            localStorage.setItem('gestione_stipendio_cats', JSON.stringify(categories));
         }
 
         function loadMovements() {
             const saved = localStorage.getItem('gestione_stipendio_movs');
-            movements = saved ? JSON.parse(saved) : [];
+            if (saved) {
+                try {
+                    movements = JSON.parse(saved);
+                } catch(e) {
+                    movements = [];
+                }
+            } else {
+                movements = [];
+            }
         }
 
         function saveMovements() {
@@ -500,23 +694,33 @@
             currentType = type;
             document.getElementById('tabUscita').classList.toggle('active', type === 'uscita');
             document.getElementById('tabEntrata').classList.toggle('active', type === 'entrata');
+            updateCategoryDropdowns();
         }
 
         function getPeriodDates(offset) {
             const now = new Date();
-            let month = now.getMonth() + (now.getDate() < 10 ? -1 : 0) + offset;
+            let day = now.getDate();
+            let month = now.getMonth();
             let year = now.getFullYear();
 
-            return {
-                startDate: new Date(year, month, 10),
-                endDate: new Date(year, month + 1, 9, 23, 59, 59)
-            };
+            if (day < 10) {
+                month -= 1;
+            }
+
+            month += offset;
+
+            let startDate = new Date(year, month, 10);
+            let endDate = new Date(year, month + 1, 9, 23, 59, 59);
+
+            return { startDate, endDate };
         }
 
         function formatPeriodTitle(offset) {
             const { startDate, endDate } = getPeriodDates(offset);
-            const startStr = startDate.toLocaleDateString('it-IT', { day: 'numeric', month: 'short' });
-            const endStr = endDate.toLocaleDateString('it-IT', { day: 'numeric', month: 'short' });
+            const options = { day: 'numeric', month: 'short' };
+            const startStr = startDate.toLocaleDateString('it-IT', options);
+            const endStr = endDate.toLocaleDateString('it-IT', options);
+            
             const monthName = endDate.toLocaleDateString('it-IT', { month: 'long', year: 'numeric' });
             return {
                 title: `${startStr} - ${endStr}`,
@@ -529,16 +733,71 @@
             renderAll();
         }
 
+        function populateFilterCategories() {
+            const filterCat = document.getElementById('filterCat');
+            const selected = filterCat.value;
+            filterCat.innerHTML = '<option value="ALL">Tutte le categorie</option>';
+
+            Object.keys(categories).forEach(cat => {
+                let opt = document.createElement('option');
+                opt.value = cat;
+                opt.textContent = cat;
+                filterCat.appendChild(opt);
+            });
+
+            filterCat.value = selected && (selected === 'ALL' || categories[selected]) ? selected : 'ALL';
+            updateFilterSubcategories();
+        }
+
+        function onFilterCatChange() {
+            updateFilterSubcategories();
+            renderAll();
+        }
+
+        function updateFilterSubcategories() {
+            const filterCat = document.getElementById('filterCat').value;
+            const filterSubcat = document.getElementById('filterSubcat');
+            const currentSubVal = filterSubcat.value;
+
+            filterSubcat.innerHTML = '<option value="ALL">Tutte le sottocategorie</option>';
+
+            if (filterCat !== 'ALL' && categories[filterCat]) {
+                categories[filterCat].forEach(sub => {
+                    let opt = document.createElement('option');
+                    opt.value = sub;
+                    opt.textContent = sub;
+                    filterSubcat.appendChild(opt);
+                });
+            }
+
+            if (Array.from(filterSubcat.options).some(o => o.value === currentSubVal)) {
+                filterSubcat.value = currentSubVal;
+            } else {
+                filterSubcat.value = 'ALL';
+            }
+        }
+
         function updateCategoryDropdowns() {
             const catSelect = document.getElementById('movCategory');
+            const parentCatSelect = document.getElementById('parentCategorySelect');
+            
             catSelect.innerHTML = '';
+            parentCatSelect.innerHTML = '';
+
             Object.keys(categories).forEach(cat => {
                 let opt = document.createElement('option');
                 opt.value = cat;
                 opt.textContent = cat;
                 catSelect.appendChild(opt);
+
+                let optParent = document.createElement('option');
+                optParent.value = cat;
+                optParent.textContent = cat;
+                parentCatSelect.appendChild(optParent);
             });
+
             updateSubcategories();
+            renderExistingCategoriesList();
             populateFilterCategories();
         }
 
@@ -546,6 +805,7 @@
             const selectedCat = document.getElementById('movCategory').value;
             const subSelect = document.getElementById('movSubcategory');
             subSelect.innerHTML = '';
+
             if (selectedCat && categories[selectedCat]) {
                 categories[selectedCat].forEach(sub => {
                     let opt = document.createElement('option');
@@ -556,50 +816,90 @@
             }
         }
 
-        function populateFilterCategories() {
-            const filterCat = document.getElementById('filterCat');
-            filterCat.innerHTML = '<option value="ALL">Tutte le categorie</option>';
+        function renderExistingCategoriesList() {
+            const container = document.getElementById('existingCategoriesContainer');
+            container.innerHTML = '';
+
             Object.keys(categories).forEach(cat => {
-                let opt = document.createElement('option');
-                opt.value = cat;
-                opt.textContent = cat;
-                filterCat.appendChild(opt);
+                const catItem = document.createElement('div');
+                catItem.className = 'category-item';
+
+                let subTags = categories[cat].map(sub => `<span class="subcat-tag">${sub}</span>`).join('');
+
+                catItem.innerHTML = `
+                    <div class="category-header">
+                        <span>${cat}</span>
+                        <button class="btn-delete" title="Elimina Categoria" onclick="deleteCategory('${cat.replace(/'/g, "\\'")}')">🗑️</button>
+                    </div>
+                    <div class="subcat-tags">
+                        ${subTags.length > 0 ? subTags : '<span class="subcat-tag" style="background:#eee;">Nessuna sottocategoria</span>'}
+                    </div>
+                `;
+                container.appendChild(catItem);
             });
         }
 
-        function onFilterCatChange() {
-            const filterCat = document.getElementById('filterCat').value;
-            const filterSubcat = document.getElementById('filterSubcat');
-            filterSubcat.innerHTML = '<option value="ALL">Tutte le sottocategorie</option>';
-            if (filterCat !== 'ALL' && categories[filterCat]) {
-                categories[filterCat].forEach(sub => {
-                    let opt = document.createElement('option');
-                    opt.value = sub;
-                    opt.textContent = sub;
-                    filterSubcat.appendChild(opt);
-                });
+        function addNewCategory(e) {
+            e.preventDefault();
+            const input = document.getElementById('newCatName');
+            const name = input.value.trim();
+            if (name && !categories[name]) {
+                categories[name] = [];
+                saveCategories();
+                input.value = '';
+                updateCategoryDropdowns();
             }
-            renderAll();
+        }
+
+        function addNewSubcategory(e) {
+            e.preventDefault();
+            const parent = document.getElementById('parentCategorySelect').value;
+            const input = document.getElementById('newSubCatName');
+            const subName = input.value.trim();
+
+            if (parent && subName && categories[parent]) {
+                if (!categories[parent].includes(subName)) {
+                    categories[parent].push(subName);
+                    saveCategories();
+                    input.value = '';
+                    updateCategoryDropdowns();
+                }
+            }
+        }
+
+        function deleteCategory(catName) {
+            if (confirm(`Vuoi davvero eliminare la categoria "${catName}"?`)) {
+                delete categories[catName];
+                saveCategories();
+                updateCategoryDropdowns();
+            }
         }
 
         function addMovement(e) {
             e.preventDefault();
             const amount = parseFloat(document.getElementById('movAmount').value);
-            if (!amount) return;
+            const category = document.getElementById('movCategory').value;
+            const subcategory = document.getElementById('movSubcategory').value || '';
+            const note = document.getElementById('movNote').value.trim();
 
-            movements.push({
+            if (!amount || amount <= 0) return;
+
+            const movement = {
                 id: Date.now(),
                 type: currentType,
                 amount: amount,
-                category: document.getElementById('movCategory').value,
-                subcategory: document.getElementById('movSubcategory').value || '',
-                note: document.getElementById('movNote').value.trim(),
+                category: category,
+                subcategory: subcategory,
+                note: note,
                 date: new Date().toISOString()
-            });
+            };
 
+            movements.push(movement);
             saveMovements();
+
             document.getElementById('movAmount').value = '';
             document.getElementById('movNote').value = '';
+
             renderAll();
         }
 
@@ -615,12 +915,15 @@
             document.getElementById('periodSubDisplay').textContent = periodInfo.subtitle;
 
             const { startDate, endDate } = getPeriodDates(currentPeriodOffset);
+
             const periodMovements = movements.filter(m => {
                 const mDate = new Date(m.date);
                 return mDate >= startDate && mDate <= endDate;
             });
 
-            let totEntrate = 0, totUscite = 0, catTotals = {};
+            let totEntrate = 0;
+            let totUscite = 0;
+            let catTotals = {};
 
             periodMovements.forEach(m => {
                 if (m.type === 'entrata') {
@@ -631,62 +934,182 @@
                 }
             });
 
+            const saldo = totEntrate - totUscite;
+
             document.getElementById('totalEntrate').textContent = `€ ${totEntrate.toFixed(2)}`;
             document.getElementById('totalUscite').textContent = `€ ${totUscite.toFixed(2)}`;
-            document.getElementById('totalSaldo').textContent = `€ ${(totEntrate - totUscite).toFixed(2)}`;
+            document.getElementById('totalSaldo').textContent = `€ ${saldo.toFixed(2)}`;
 
-            // --- AGGIORNAMENTO DINAMICO 50/30/20 ---
-            document.getElementById('adviceNeeds').textContent = `€ ${(totEntrate * 0.50).toFixed(2)}`;
-            document.getElementById('adviceWants').textContent = `€ ${(totEntrate * 0.30).toFixed(2)}`;
-            document.getElementById('adviceSavings').textContent = `€ ${(totEntrate * 0.20).toFixed(2)}`;
+            // Aggiornamento ripartizione consigliata (50/30/20)
+            document.getElementById('ruleNeeds').textContent = `€ ${(totEntrate * 0.50).toFixed(2)}`;
+            document.getElementById('ruleWants').textContent = `€ ${(totEntrate * 0.30).toFixed(2)}`;
+            document.getElementById('ruleSavings').textContent = `€ ${(totEntrate * 0.20).toFixed(2)}`;
 
-            renderMovementsList(periodMovements);
+            const selectedCat = document.getElementById('filterCat').value;
+            const selectedSubcat = document.getElementById('filterSubcat').value;
+
+            const filteredMovements = periodMovements.filter(m => {
+                const catMatch = selectedCat === 'ALL' || m.category === selectedCat;
+                const subcatMatch = selectedSubcat === 'ALL' || m.subcategory === selectedSubcat;
+                return catMatch && subcatMatch;
+            });
+
+            let filterTotalSpese = 0;
+            filteredMovements.forEach(m => {
+                if (m.type === 'uscita') {
+                    filterTotalSpese += m.amount;
+                }
+            });
+
+            let labelText = "Totale Spese (Tutti i movimenti)";
+            if (selectedCat !== 'ALL') {
+                labelText = `Totale: ${selectedCat}`;
+                if (selectedSubcat !== 'ALL') {
+                    labelText += ` › ${selectedSubcat}`;
+                }
+            }
+            
+            document.getElementById('filterSummaryLabel').textContent = labelText;
+            document.getElementById('filterSummaryCount').textContent = `${filteredMovements.length} operazion${filteredMovements.length === 1 ? 'e' : 'i'}`;
+            document.getElementById('filterSummaryAmount').textContent = `€ ${filterTotalSpese.toFixed(2)}`;
+
+            renderMovementsList(filteredMovements);
             renderChart(catTotals);
         }
 
         function renderMovementsList(list) {
             const container = document.getElementById('movementList');
-            container.innerHTML = list.length === 0 ? '<div style="text-align:center; color:#888; font-size:13px; padding:15px;">Nessun movimento.</div>' : '';
+            container.innerHTML = '';
 
-            list.forEach(m => {
-                const isEnt = m.type === 'entrata';
-                const div = document.createElement('div');
-                div.className = 'movement-item';
-                div.innerHTML = `
-                    <div>
+            if (list.length === 0) {
+                container.innerHTML = '<div class="empty-msg">Nessun movimento trovato.</div>';
+                return;
+            }
+
+            const sorted = [...list].sort((a,b) => new Date(b.date) - new Date(a.date));
+
+            sorted.forEach(m => {
+                const item = document.createElement('div');
+                item.className = 'movement-item';
+
+                const isEntrata = m.type === 'entrata';
+                const sign = isEntrata ? '+' : '-';
+                const amountClass = isEntrata ? 'amount-entrata' : 'amount-uscita';
+
+                let subText = m.subcategory;
+                if (m.note) {
+                    subText += (subText ? ' • ' : '') + m.note;
+                }
+
+                item.innerHTML = `
+                    <div class="movement-info">
                         <div class="movement-cat">${m.category}</div>
-                        <div class="movement-sub">${m.subcategory} ${m.note ? '• ' + m.note : ''}</div>
+                        <div class="movement-sub">${subText || 'Generale'}</div>
                     </div>
                     <div style="display:flex; align-items:center;">
-                        <div class="movement-amount ${isEnt ? 'amount-entrata' : 'amount-uscita'}">
-                            ${isEnt ? '+' : '-'} € ${m.amount.toFixed(2)}
-                        </div>
-                        <button class="btn-delete" onclick="deleteMovement(${m.id})">✕</button>
+                        <div class="movement-amount ${amountClass}">${sign} € ${m.amount.toFixed(2)}</div>
+                        <button class="btn-delete" data-html2canvas-ignore="true" onclick="deleteMovement(${m.id})">✕</button>
                     </div>
                 `;
-                container.appendChild(div);
+                container.appendChild(item);
             });
         }
 
         function renderChart(catTotals) {
             const ctx = document.getElementById('categoryChart').getContext('2d');
-            if (chartInstance) chartInstance.destroy();
+
+            const labels = Object.keys(catTotals);
+            const data = Object.values(catTotals);
+
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+
+            if (data.length === 0) {
+                ctx.clearRect(0, 0, 300, 300);
+                return;
+            }
+
+            const pinkGreyPalette = [
+                '#d8819d', '#b08ebb', '#9381a4', '#d09bb0', 
+                '#e0a7b8', '#88748a', '#ba899b', '#aaa0ac'
+            ];
 
             chartInstance = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: Object.keys(catTotals),
+                    labels: labels,
                     datasets: [{
-                        data: Object.values(catTotals),
-                        backgroundColor: ['#d8819d', '#b08ebb', '#9381a4', '#d09bb0', '#e0a7b8', '#88748a']
+                        data: data,
+                        backgroundColor: pinkGreyPalette.slice(0, labels.length),
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
                     }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, cutout: '65%' }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                font: { size: 12, weight: '600' },
+                                boxWidth: 12,
+                                padding: 10,
+                                generateLabels: function(chart) {
+                                    const data = chart.data;
+                                    if (data.labels.length && data.datasets.length) {
+                                        return data.labels.map(function(label, i) {
+                                            const meta = chart.getDatasetMeta(0);
+                                            const style = meta.controller.getStyle(i);
+                                            const val = data.datasets[0].data[i];
+                                            return {
+                                                text: `${label}: € ${val.toFixed(2)}`,
+                                                fillStyle: style.backgroundColor,
+                                                strokeStyle: style.borderColor,
+                                                lineWidth: style.borderWidth,
+                                                hidden: !chart.isDatasetVisible(0) || meta.data[i].hidden,
+                                                index: i
+                                            };
+                                        });
+                                    }
+                                    return [];
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed !== null) {
+                                        label += '€ ' + context.parsed.toFixed(2);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    cutout: '65%'
+                }
             });
         }
 
         function exportPDF() {
-            html2pdf().from(document.getElementById('exportArea')).save(`Resoconto_Stipendio.pdf`);
+            const element = document.getElementById('exportArea');
+            const subTitle = document.getElementById('periodSubDisplay').textContent;
+            
+            const opt = {
+                margin:       10,
+                filename:     `Resoconto_${subTitle.replace(/\s+/g, '_')}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(element).save();
         }
     </script>
 </body>
